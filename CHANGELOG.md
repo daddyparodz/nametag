@@ -6,21 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [0.2.0](https://github.com/mattogodoy/nametag/compare/v0.1.4...v0.2.0) (2026-01-04)
+## [0.2.1](https://github.com/mattogodoy/nametag/compare/v0.2.0...v0.2.1) (2026-01-05)
 
-### Features
+### Bug Fixes
 
-* Added Google OAuth for registration and login ([198871f](https://github.com/mattogodoy/nametag/commit/198871fe8b8fb510bb0eda44c9f53a97667c1451))
+* Enforce tier limits on imports ([6429c59](https://github.com/mattogodoy/nametag/commit/6429c593b6d6550e2279e386e05fda4561e6b56c))
+* Fixed error when selecting days for remider periods ([8ec7328](https://github.com/mattogodoy/nametag/commit/8ec7328e75c5e8f5552e33d883ee54acbc4e3eba))
 
 ### Changelog
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [v0.2.1](https://github.com/mattogodoy/nametag/compare/v0.2.0...v0.2.1)
+
+- 🐛 Fix: Enforce tier limits on imports [`6429c59`](https://github.com/mattogodoy/nametag/commit/6429c593b6d6550e2279e386e05fda4561e6b56c)
+- 🐛 Fix: Fixed error when selecting days for remider periods [`8ec7328`](https://github.com/mattogodoy/nametag/commit/8ec7328e75c5e8f5552e33d883ee54acbc4e3eba)
+
 #### [v0.2.0](https://github.com/mattogodoy/nametag/compare/v0.1.4...v0.2.0)
+
+> 4 January 2026
 
 - Add Google OAuth for registration and login [`#1`](https://github.com/mattogodoy/nametag/pull/1)
 - ✨ Feature: Added Google OAuth for registration and login [`198871f`](https://github.com/mattogodoy/nametag/commit/198871fe8b8fb510bb0eda44c9f53a97667c1451)
 - 🔧 Chore: Remove double colons from changelog format [`3723e78`](https://github.com/mattogodoy/nametag/commit/3723e7851da5371170e99c363efd5c5e72b42be0)
+- 🔧 Chore: release v0.2.0 [`635277c`](https://github.com/mattogodoy/nametag/commit/635277cea61a1e4dbc6f23b80adfc1012b5fff11)
 
 #### [v0.1.4](https://github.com/mattogodoy/nametag/compare/v0.1.3...v0.1.4)
 
