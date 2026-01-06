@@ -23,6 +23,10 @@ type DashboardGraphPerson = {
       | {
           label: string;
           color: string | null;
+          inverse: {
+            label: string;
+            color: string | null;
+          } | null;
         }
       | null;
   }>;
@@ -115,6 +119,15 @@ export const GET = withAuth(async (request, session) => {
               select: {
                 label: true,
                 color: true,
+                inverse: {
+                  where: {
+                    deletedAt: null,
+                  },
+                  select: {
+                    label: true,
+                    color: true,
+                  },
+                },
               },
             },
           },
@@ -172,18 +185,29 @@ export const GET = withAuth(async (request, session) => {
         // Only add edges where both nodes exist
         if (nodeIds.has(rel.relatedPersonId)) {
           // Use lexicographic ordering to deduplicate bidirectional relationships
-          const sourceId = person.id < rel.relatedPersonId ? person.id : rel.relatedPersonId;
-          const targetId = person.id < rel.relatedPersonId ? rel.relatedPersonId : person.id;
+          const isSwapped = person.id > rel.relatedPersonId;
+          const sourceId = isSwapped ? rel.relatedPersonId : person.id;
+          const targetId = isSwapped ? person.id : rel.relatedPersonId;
           const edgeKey = `${sourceId}-${targetId}`;
 
           // Only add if we haven't already added this edge
           if (!addedEdges.has(edgeKey)) {
             addedEdges.add(edgeKey);
+
+            // If we swapped the direction, use the inverse relationship label
+            const relationshipLabel = isSwapped && rel.relationshipType?.inverse
+              ? rel.relationshipType.inverse.label
+              : (rel.relationshipType?.label || 'Unknown');
+
+            const relationshipColor = isSwapped && rel.relationshipType?.inverse
+              ? rel.relationshipType.inverse.color
+              : (rel.relationshipType?.color || '#999999');
+
             edges.push({
               source: sourceId,
               target: targetId,
-              type: rel.relationshipType?.label || 'Unknown',
-              color: rel.relationshipType?.color || '#999999',
+              type: relationshipLabel,
+              color: relationshipColor || '#999999',
             });
           }
         }
