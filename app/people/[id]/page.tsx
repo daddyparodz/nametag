@@ -258,7 +258,7 @@ export default async function PersonDetailsPage({
                     {person.lastContact && (
                       <div>
                         <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                          Last Contact
+                          Last time you talked
                         </h4>
                         <p className="text-gray-900 dark:text-white">
                           {formatDate(new Date(person.lastContact), dateFormat)}{' '}
