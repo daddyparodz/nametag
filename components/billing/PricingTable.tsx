@@ -58,13 +58,21 @@ export default function PricingTable({ currentTier, currentFrequency }: PricingT
   return (
     <div className="space-y-6">
       {/* Frequency Toggle */}
-      <div className="flex justify-center">
-        <div className="inline-flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+      <div className="flex flex-col items-center gap-3">
+        <div className="text-center">
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Choose your billing frequency
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Switch between monthly and yearly pricing
+          </p>
+        </div>
+        <div className="inline-flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1.5 shadow-sm">
           <button
             onClick={() => setFrequency('MONTHLY')}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+            className={`px-6 py-3 text-base font-semibold rounded-md transition-all ${
               frequency === 'MONTHLY'
-                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow'
+                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-md scale-105'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
@@ -72,14 +80,21 @@ export default function PricingTable({ currentTier, currentFrequency }: PricingT
           </button>
           <button
             onClick={() => setFrequency('YEARLY')}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+            className={`px-6 py-3 text-base font-semibold rounded-md transition-all relative ${
               frequency === 'YEARLY'
-                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow'
+                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-md scale-105'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
-            Yearly
-            <span className="ml-1 text-green-600 dark:text-green-400 text-xs">Save 17%</span>
+            <span className="flex items-center gap-2">
+              Yearly
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Save 17%
+              </span>
+            </span>
           </button>
         </div>
       </div>
