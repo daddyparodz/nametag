@@ -66,6 +66,7 @@ export default function UnifiedNetworkGraph({
   const router = useRouter();
   const previousNodeIdsRef = useRef<Set<string> | null>(null);
   const zoomTransformRef = useRef<d3.ZoomTransform | null>(null);
+  const zoomBehaviorRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [clusteringEnabled, setClusteringEnabled] = useState(enableGroupClustering);
@@ -80,6 +81,22 @@ export default function UnifiedNetworkGraph({
     window.addEventListener('resize', checkMobile);
 
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Function to re-center the graph view
+  const recenterGraph = useCallback(() => {
+    if (!svgRef.current || !zoomBehaviorRef.current) return;
+
+    const svg = d3.select(svgRef.current);
+
+    // Reset to identity transform (no zoom, no pan)
+    svg
+      .transition()
+      .duration(750)
+      .call(zoomBehaviorRef.current.transform, d3.zoomIdentity);
+
+    // Clear the stored transform
+    zoomTransformRef.current = null;
   }, []);
 
   const renderGraph = useCallback((data: { nodes: GraphNode[]; edges: GraphEdge[] }) => {
@@ -382,6 +399,9 @@ export default function UnifiedNetworkGraph({
         zoomTransformRef.current = event.transform;
       });
 
+    // Store zoom behavior for re-centering
+    zoomBehaviorRef.current = zoom;
+
     svg.call(zoom);
 
     // Restore previous zoom transform if it exists
@@ -496,10 +516,29 @@ export default function UnifiedNetworkGraph({
           </div>
         </div>
       )}
-      <svg
-        ref={svgRef}
-        className="w-full h-[400px] sm:h-[500px] lg:h-[600px] bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
-      />
+      <div className="relative">
+        <svg
+          ref={svgRef}
+          className="w-full h-[400px] sm:h-[500px] lg:h-[600px] bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
+        />
+        <button
+          onClick={recenterGraph}
+          className="absolute bottom-4 right-4 p-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-105 active:scale-95 transition-all"
+          aria-label="Re-center graph"
+          title="Re-center graph"
+        >
+          <svg
+            className="w-5 h-5 text-gray-700 dark:text-gray-300"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="12" cy="12" r="10" strokeWidth="2" />
+            <circle cx="12" cy="12" r="3" strokeWidth="2" fill="currentColor" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2v4m0 12v4M2 12h4m12 0h4" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }
