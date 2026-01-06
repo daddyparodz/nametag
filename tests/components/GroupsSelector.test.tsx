@@ -37,7 +37,7 @@ describe('GroupsSelector', () => {
         />
       );
 
-      expect(screen.getByPlaceholderText(/search groups/i)).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/search or create groups/i)).toBeInTheDocument();
     });
 
     it('should show available groups when focused', async () => {
@@ -51,7 +51,7 @@ describe('GroupsSelector', () => {
         />
       );
 
-      const input = screen.getByPlaceholderText(/search groups/i);
+      const input = screen.getByPlaceholderText(/search or create groups/i);
       await user.click(input);
 
       expect(screen.getByText('Family')).toBeInTheDocument();
@@ -70,7 +70,7 @@ describe('GroupsSelector', () => {
         />
       );
 
-      const input = screen.getByPlaceholderText(/search groups/i);
+      const input = screen.getByPlaceholderText(/search or create groups/i);
       await user.type(input, 'Fam');
 
       expect(screen.getByText('Family')).toBeInTheDocument();
@@ -89,7 +89,7 @@ describe('GroupsSelector', () => {
         />
       );
 
-      const input = screen.getByPlaceholderText(/search groups/i);
+      const input = screen.getByPlaceholderText(/search or create groups/i);
       await user.click(input);
       await user.click(screen.getByText('Family'));
 
