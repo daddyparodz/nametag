@@ -13,9 +13,10 @@ interface Group {
 
 interface AccountManagementProps {
   groups: Group[];
+  peopleCount: number;
 }
 
-export default function AccountManagement({ groups }: AccountManagementProps) {
+export default function AccountManagement({ groups, peopleCount }: AccountManagementProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -257,9 +258,12 @@ export default function AccountManagement({ groups }: AccountManagementProps) {
                 value="all"
                 checked={exportMode === 'all'}
                 onChange={() => setExportMode('all')}
-                className="w-4 h-4 text-blue-600 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-blue-500"
+                disabled={peopleCount === 0 && groups.length === 0}
+                className="w-4 h-4 text-blue-600 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-blue-500 disabled:opacity-50"
               />
-              <span className="text-sm text-gray-700 dark:text-gray-300">Export everything</span>
+              <span className={`text-sm ${peopleCount === 0 && groups.length === 0 ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}>
+                Export everything
+              </span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -295,11 +299,23 @@ export default function AccountManagement({ groups }: AccountManagementProps) {
 
         <button
           onClick={handleExport}
-          disabled={isExporting || (exportMode === 'groups' && selectedGroupIds.length === 0)}
+          disabled={
+            isExporting ||
+            (exportMode === 'groups' && selectedGroupIds.length === 0) ||
+            (exportMode === 'all' && peopleCount === 0 && groups.length === 0)
+          }
           className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isExporting ? 'Exporting...' : 'Export Data'}
         </button>
+
+        {/* Show helpful message when no data to export */}
+        {exportMode === 'all' && peopleCount === 0 && groups.length === 0 && (
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            No data to export. Add people or groups first.
+          </p>
+        )}
+
         {exportMessage && (
           <p
             className={`mt-2 text-sm ${

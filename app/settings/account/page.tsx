@@ -10,10 +10,15 @@ export default async function AccountSettingsPage() {
     redirect('/login');
   }
 
-  const groups = await prisma.group.findMany({
-    where: { userId: session.user.id },
-    orderBy: { name: 'asc' },
-  });
+  const [groups, peopleCount] = await Promise.all([
+    prisma.group.findMany({
+      where: { userId: session.user.id },
+      orderBy: { name: 'asc' },
+    }),
+    prisma.person.count({
+      where: { userId: session.user.id },
+    }),
+  ]);
 
   return (
     <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
@@ -23,7 +28,7 @@ export default async function AccountSettingsPage() {
       <p className="text-gray-600 dark:text-gray-400 mb-6">
         Export your data, import from a backup, or delete your account.
       </p>
-      <AccountManagement groups={groups} />
+      <AccountManagement groups={groups} peopleCount={peopleCount} />
     </div>
   );
 }
