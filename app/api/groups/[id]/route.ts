@@ -93,9 +93,13 @@ export const PUT = withAuth(async (request, session, context) => {
 });
 
 // DELETE /api/groups/[id] - Delete a group
-export const DELETE = withAuth(async (_request, session, context) => {
+export const DELETE = withAuth(async (request, session, context) => {
   try {
     const { id } = await context!.params;
+
+    // Check if deletePeople parameter is set
+    const url = new URL(request.url);
+    const deletePeople = url.searchParams.get('deletePeople') === 'true';
 
     // Check if group exists and belongs to user
     const existingGroup = await prisma.group.findUnique({
@@ -103,10 +107,33 @@ export const DELETE = withAuth(async (_request, session, context) => {
         id,
         userId: session.user.id,
       },
+      include: {
+        people: {
+          select: {
+            personId: true,
+          },
+        },
+      },
     });
 
     if (!existingGroup) {
       return apiResponse.notFound('Group not found');
+    }
+
+    // If deletePeople is true, delete all people in the group
+    if (deletePeople && existingGroup.people.length > 0) {
+      const personIds = existingGroup.people.map((p) => p.personId);
+
+      // Soft delete all people in the group
+      await prisma.person.updateMany({
+        where: {
+          id: { in: personIds },
+          userId: session.user.id, // Extra safety check
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      });
     }
 
     // Soft delete the group (set deletedAt instead of removing)
