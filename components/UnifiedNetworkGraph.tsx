@@ -348,6 +348,7 @@ export default function UnifiedNetworkGraph({
       });
 
     // Add circles to nodes
+    const isDarkTheme = document.documentElement.classList.contains('dark');
     const circles = node
       .append('circle')
       .attr('r', (d) => (d.isCenter ? nodeRadius.center : nodeRadius.normal))
@@ -356,7 +357,7 @@ export default function UnifiedNetworkGraph({
         if (d.colors.length > 0) return d.colors[0];
         return '#9CA3AF';
       })
-      .attr('stroke', '#fff')
+      .attr('stroke', isDarkTheme ? '#fff' : '#1f2937') // White in dark theme, dark grey in light theme
       .attr('stroke-width', 2);
 
     // Animate new nodes
@@ -544,16 +545,16 @@ export default function UnifiedNetworkGraph({
         <div className="absolute bottom-4 right-4 flex gap-2">
           <button
             onClick={() => setClusteringEnabled(!clusteringEnabled)}
-            className={`p-2.5 border-2 rounded-lg shadow-lg hover:scale-105 active:scale-95 transition-all ${
+            className={`p-3 border-2 rounded-lg shadow-lg hover:scale-105 active:scale-95 transition-all ${
               clusteringEnabled
-                ? 'bg-primary border-primary hover:bg-primary-dark shadow-primary/50'
-                : 'bg-surface border-border hover:bg-surface-elevated hover:border-primary/50'
+                ? 'bg-primary/30 border-primary/30 shadow-primary/20 dark:bg-primary dark:border-primary dark:shadow-primary/50'
+                : 'bg-surface border-primary/30 shadow-border/20 hover:bg-surface-elevated dark:bg-surface dark:border-border dark:hover:bg-surface-elevated'
             }`}
             aria-label="Cluster by group"
             title="Cluster by group"
           >
             <svg
-              className="w-5 h-5 text-foreground dark:text-white"
+              className="w-5 h-5 text-primary drop-shadow-lg dark:text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -568,12 +569,12 @@ export default function UnifiedNetworkGraph({
           </button>
           <button
             onClick={recenterGraph}
-            className="p-2.5 bg-surface border-2 border-border rounded-lg shadow-lg hover:bg-surface-elevated hover:border-secondary/50 hover:scale-105 active:scale-95 transition-all"
+            className="p-3 bg-surface border-2 border-primary/30 shadow-lg shadow-border/20 rounded-lg hover:scale-105 active:scale-95 transition-all dark:bg-surface dark:border-border dark:hover:bg-surface-elevated dark:hover:border-secondary/50"
             aria-label="Re-center graph"
             title="Re-center graph"
           >
             <svg
-              className="w-5 h-5 text-foreground dark:text-white"
+              className="w-5 h-5 text-primary drop-shadow-lg dark:text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
