@@ -62,9 +62,9 @@ describe('PasswordStrengthIndicator', () => {
 
     it('should mark unmet requirements with gray X', () => {
       const { container } = render(<PasswordStrengthIndicator password="pass" />);
-      
+
       // Most requirements not met (gray X icons)
-      const grayIcons = container.querySelectorAll('.text-gray-400');
+      const grayIcons = container.querySelectorAll('.text-muted');
       expect(grayIcons.length).toBeGreaterThan(0);
     });
   });
@@ -104,11 +104,11 @@ describe('PasswordStrengthIndicator', () => {
   describe('Specific Requirements', () => {
     it('should detect minimum length requirement', () => {
       const { container } = render(<PasswordStrengthIndicator password="Pass1!" />);
-      
+
       // 6 characters, doesn't meet 8 minimum
       const lengthReq = screen.getByText(/At least 8 characters/i);
-      expect(lengthReq.parentElement?.querySelector('.text-gray-400')).toBeInTheDocument();
-      
+      expect(lengthReq.parentElement?.querySelector('.text-muted')).toBeInTheDocument();
+
       // 8 characters, meets minimum
       const { container: container2 } = render(<PasswordStrengthIndicator password="Pass123!" />);
       const lengthReq2 = screen.getAllByText(/At least 8 characters/i)[1];
@@ -118,25 +118,25 @@ describe('PasswordStrengthIndicator', () => {
     it('should detect uppercase requirement', () => {
       render(<PasswordStrengthIndicator password="password123!" />);
       const req = screen.getByText(/One uppercase letter/i);
-      expect(req.parentElement?.querySelector('.text-gray-400')).toBeInTheDocument();
+      expect(req.parentElement?.querySelector('.text-muted')).toBeInTheDocument();
     });
 
     it('should detect lowercase requirement', () => {
       render(<PasswordStrengthIndicator password="PASSWORD123!" />);
       const req = screen.getByText(/One lowercase letter/i);
-      expect(req.parentElement?.querySelector('.text-gray-400')).toBeInTheDocument();
+      expect(req.parentElement?.querySelector('.text-muted')).toBeInTheDocument();
     });
 
     it('should detect number requirement', () => {
       render(<PasswordStrengthIndicator password="Password!" />);
       const req = screen.getByText(/One number/i);
-      expect(req.parentElement?.querySelector('.text-gray-400')).toBeInTheDocument();
+      expect(req.parentElement?.querySelector('.text-muted')).toBeInTheDocument();
     });
 
     it('should detect special character requirement', () => {
       render(<PasswordStrengthIndicator password="Password123" />);
       const req = screen.getByText(/One special character/i);
-      expect(req.parentElement?.querySelector('.text-gray-400')).toBeInTheDocument();
+      expect(req.parentElement?.querySelector('.text-muted')).toBeInTheDocument();
     });
   });
 
