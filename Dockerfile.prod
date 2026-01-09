@@ -1,7 +1,7 @@
 # Production Dockerfile for Nametag
 # Multi-stage build for optimized production image
 
-# Stage 1: Dependencies
+# Stage 1: Dependencies (for build)
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
@@ -39,7 +39,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # Compile production seed to JavaScript using esbuild
-RUN npx esbuild prisma/seed.production.ts --platform=node --format=cjs --outfile=prisma/seed.production.js --bundle --external:@prisma/client --external:pg
+RUN npx esbuild prisma/seed.production.ts --platform=node --format=cjs --outfile=prisma/seed.production.js --bundle --external:@prisma/client --external:pg --minify
 
 # Stage 3: Runner
 FROM node:20-alpine AS runner
@@ -65,9 +65,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Standalone output includes public, but we copy again to ensure all assets are present
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
-# Install migration tools (prisma) as root before switching users
-# This ensures all transitive dependencies are properly installed
-RUN npm install --save-dev prisma@7.0.1 --no-save
+# Copy Prisma CLI from builder (for migrations) instead of reinstalling
+# This saves ~30-40 MB compared to npm install
+COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 
 # Copy Prisma generated client from builder (already built)
 COPY --from=builder /app/node_modules/.prisma/ ./node_modules/.prisma/
