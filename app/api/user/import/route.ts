@@ -20,6 +20,39 @@ export const POST = withAuth(async (request, session) => {
 
     const data: ImportData = validation.data;
 
+    // Check if we're importing specific groups
+    const selectedGroupIds = body.groupIds as string[] | undefined;
+    let filteredData = data;
+
+    if (selectedGroupIds && selectedGroupIds.length > 0) {
+      // Filter groups to only include selected ones
+      const selectedGroups = data.groups.filter(g => selectedGroupIds.includes(g.id));
+
+      // Get people who are members of at least one selected group
+      const selectedGroupNames = selectedGroups.map(g => g.name);
+      const filteredPeople = data.people.filter(person =>
+        person.groups.some(groupName => selectedGroupNames.includes(groupName))
+      );
+
+      // Get the IDs of people we're importing
+      const filteredPeopleIds = new Set(filteredPeople.map(p => p.id));
+
+      // Filter people's relationships to only include relationships with other people we're importing
+      const filteredPeopleWithRelationships = filteredPeople.map(person => ({
+        ...person,
+        relationships: person.relationships.filter(rel =>
+          filteredPeopleIds.has(rel.relatedPersonId)
+        ),
+      }));
+
+      // Update filteredData to only include selected groups, filtered people, and all relationship types
+      filteredData = {
+        ...data,
+        groups: selectedGroups,
+        people: filteredPeopleWithRelationships,
+      };
+    }
+
     // Check tier limits before importing (only in SaaS mode)
     if (isSaasMode()) {
       // Get current usage
@@ -27,7 +60,7 @@ export const POST = withAuth(async (request, session) => {
 
       // Count how many NEW people will be created (not existing ones)
       let newPeopleCount = 0;
-      for (const person of data.people) {
+      for (const person of filteredData.people) {
         const existingPerson = await prisma.person.findFirst({
           where: {
             userId: session.user.id,
@@ -64,7 +97,7 @@ export const POST = withAuth(async (request, session) => {
 
       // Count how many NEW groups will be created
       let newGroupsCount = 0;
-      for (const group of data.groups) {
+      for (const group of filteredData.groups) {
         const existingGroup = await prisma.group.findFirst({
           where: {
             userId: session.user.id,
@@ -147,7 +180,7 @@ export const POST = withAuth(async (request, session) => {
     }
 
     // 2. Import groups
-    for (const group of data.groups) {
+    for (const group of filteredData.groups) {
       // Check if a group with the same name already exists (case-insensitive)
       const existingGroup = await prisma.group.findFirst({
         where: {
@@ -177,7 +210,7 @@ export const POST = withAuth(async (request, session) => {
     }
 
     // 3. Import people (without relationships first)
-    for (const person of data.people) {
+    for (const person of filteredData.people) {
       // Check if a person with the same name already exists (case-insensitive)
       const existingPerson = await prisma.person.findFirst({
         where: {
@@ -233,7 +266,7 @@ export const POST = withAuth(async (request, session) => {
       // Add person to groups
       for (const groupName of person.groups) {
         // Find the group by name (since we just created them)
-        const oldGroup = data.groups.find((g) => g.name === groupName);
+        const oldGroup = filteredData.groups.find((g) => g.name === groupName);
         if (oldGroup) {
           const newGroupId = groupIdMap.get(oldGroup.id);
           if (newGroupId) {
@@ -262,7 +295,7 @@ export const POST = withAuth(async (request, session) => {
     }
 
     // 4. Import relationships between people
-    for (const person of data.people) {
+    for (const person of filteredData.people) {
       const newPersonId = personIdMap.get(person.id);
       if (!newPersonId) continue;
 

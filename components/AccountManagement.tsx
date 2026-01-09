@@ -32,6 +32,7 @@ export default function AccountManagement({ groups, peopleCount }: AccountManage
   const [isValidating, setIsValidating] = useState(false);
   const [importMessage, setImportMessage] = useState('');
   const [importFile, setImportFile] = useState<File | null>(null);
+  const [importData, setImportData] = useState<any>(null);
   const [importPreview, setImportPreview] = useState<{
     groups: number;
     people: number;
@@ -47,6 +48,8 @@ export default function AccountManagement({ groups, peopleCount }: AccountManage
     limit?: number;
     totalAfterImport?: number;
   } | null>(null);
+  const [importMode, setImportMode] = useState<'all' | 'groups'>('all');
+  const [selectedImportGroupIds, setSelectedImportGroupIds] = useState<string[]>([]);
 
   // Delete state
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -103,6 +106,9 @@ export default function AccountManagement({ groups, peopleCount }: AccountManage
     setImportFile(file);
     setImportMessage('');
     setImportValidation(null);
+    setImportData(null);
+    setImportMode('all');
+    setSelectedImportGroupIds([]);
     setIsValidating(true);
 
     try {
@@ -111,6 +117,7 @@ export default function AccountManagement({ groups, peopleCount }: AccountManage
 
       // Validate file format
       if (data.version && data.groups && data.people) {
+        setImportData(data);
         setImportPreview({
           groups: data.groups.length,
           people: data.people.length,
@@ -132,16 +139,19 @@ export default function AccountManagement({ groups, peopleCount }: AccountManage
         } else {
           setImportMessage('Failed to validate import data');
           setImportFile(null);
+          setImportData(null);
           setImportPreview(null);
         }
       } else {
         setImportMessage('Invalid file format');
         setImportFile(null);
+        setImportData(null);
         setImportPreview(null);
       }
     } catch {
       setImportMessage('Invalid JSON file');
       setImportFile(null);
+      setImportData(null);
       setImportPreview(null);
     } finally {
       setIsValidating(false);
@@ -150,21 +160,26 @@ export default function AccountManagement({ groups, peopleCount }: AccountManage
 
   // Import data
   const handleImport = async () => {
-    if (!importFile) return;
+    if (!importFile || !importData) return;
 
     setIsImporting(true);
     setImportMessage('');
 
     try {
-      const text = await importFile.text();
-      const data = JSON.parse(text);
+      // Build the request body
+      const requestBody: any = { ...importData };
+
+      // If importing specific groups, add the groupIds parameter
+      if (importMode === 'groups' && selectedImportGroupIds.length > 0) {
+        requestBody.groupIds = selectedImportGroupIds;
+      }
 
       const response = await fetch('/api/user/import', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(requestBody),
       });
 
       const result = await response.json();
@@ -175,10 +190,13 @@ export default function AccountManagement({ groups, peopleCount }: AccountManage
       }
 
       setImportMessage(
-        `Successfully imported ${result.imported.groups} groups, ${result.imported.people} people, and ${result.imported.customRelationshipTypes} custom relationship types`
+        `Successfully imported ${result.imported.groups} groups, ${result.imported.people} people, and ${result.imported.relationshipTypes || 0} custom relationship types`
       );
       setImportFile(null);
+      setImportData(null);
       setImportPreview(null);
+      setImportMode('all');
+      setSelectedImportGroupIds([]);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -288,6 +306,7 @@ export default function AccountManagement({ groups, peopleCount }: AccountManage
                 availableGroups={groups}
                 selectedGroupIds={selectedGroupIds}
                 onChange={setSelectedGroupIds}
+                allowCreate={false}
               />
               {selectedGroupIds.length > 0 && (
                 <p className="text-xs text-muted mt-2">
@@ -412,14 +431,91 @@ export default function AccountManagement({ groups, peopleCount }: AccountManage
 
               {importValidation.valid ? (
                 <>
-                  <ul className="text-sm text-blue-800 dark:text-blue-400 space-y-1">
+                  <ul className="text-sm text-blue-800 dark:text-blue-400 space-y-1 mb-4">
                     <li>• {importPreview.groups} groups ({importValidation.newGroupsCount} new)</li>
                     <li>• {importPreview.people} people ({importValidation.newPeopleCount} new)</li>
                     <li>• {importPreview.customRelationshipTypes} custom relationship types</li>
                   </ul>
+
+                  {/* Import Mode Toggle - only show if there are groups */}
+                  {importPreview.groups > 0 && importData && (
+                    <div className="mb-4 space-y-3 border-t border-blue-200 dark:border-blue-700 pt-3">
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="importMode"
+                            value="all"
+                            checked={importMode === 'all'}
+                            onChange={() => setImportMode('all')}
+                            className="w-4 h-4 text-blue-600 bg-surface-elevated border-border focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-blue-800 dark:text-blue-300">
+                            Import everything
+                          </span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="importMode"
+                            value="groups"
+                            checked={importMode === 'groups'}
+                            onChange={() => setImportMode('groups')}
+                            className="w-4 h-4 text-blue-600 bg-surface-elevated border-border focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-blue-800 dark:text-blue-300">
+                            Import specific groups
+                          </span>
+                        </label>
+                      </div>
+
+                      {importMode === 'groups' && (
+                        <div className="pl-6">
+                          <div className="space-y-2 mb-3">
+                            {importData.groups.map((group: any) => (
+                              <label
+                                key={group.id}
+                                className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 cursor-pointer transition-colors"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={selectedImportGroupIds.includes(group.id)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedImportGroupIds([...selectedImportGroupIds, group.id]);
+                                    } else {
+                                      setSelectedImportGroupIds(
+                                        selectedImportGroupIds.filter(id => id !== group.id)
+                                      );
+                                    }
+                                  }}
+                                  className="w-4 h-4 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500"
+                                />
+                                <div
+                                  className="w-4 h-4 rounded-full flex-shrink-0"
+                                  style={{
+                                    backgroundColor: group.color || '#9CA3AF',
+                                  }}
+                                />
+                                <span className="text-sm font-medium text-blue-900 dark:text-blue-200">
+                                  {group.name}
+                                </span>
+                              </label>
+                            ))}
+                          </div>
+                          {selectedImportGroupIds.length > 0 && (
+                            <p className="text-xs text-blue-700 dark:text-blue-400">
+                              Will import {selectedImportGroupIds.length} {selectedImportGroupIds.length === 1 ? 'group' : 'groups'}, people in {selectedImportGroupIds.length === 1 ? 'this group' : 'those groups'}, and relationships between them.
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <button
                     onClick={handleImport}
-                    disabled={isImporting}
+                    disabled={isImporting || (importMode === 'groups' && selectedImportGroupIds.length === 0)}
                     className="mt-3 px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark shadow-lg hover:shadow-primary/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isImporting ? 'Importing...' : 'Confirm Import'}
@@ -441,8 +537,11 @@ export default function AccountManagement({ groups, peopleCount }: AccountManage
                   <button
                     onClick={() => {
                       setImportFile(null);
+                      setImportData(null);
                       setImportPreview(null);
                       setImportValidation(null);
+                      setImportMode('all');
+                      setSelectedImportGroupIds([]);
                       if (fileInputRef.current) {
                         fileInputRef.current.value = '';
                       }
