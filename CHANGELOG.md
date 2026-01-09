@@ -6,18 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [0.10.3](https://github.com/mattogodoy/nametag/compare/v0.10.2...v0.10.3) (2026-01-09)
+## [0.10.4](https://github.com/mattogodoy/nametag/compare/v0.10.3...v0.10.4) (2026-01-09)
 
 ### Bug Fixes
 
-* Added prisma/engines module to build ([2e27822](https://github.com/mattogodoy/nametag/commit/2e278226b17b49dc6d32953466db660bd97a0544))
+* Roll back prisma installation removal ([6fdb2d5](https://github.com/mattogodoy/nametag/commit/6fdb2d59f1398122f35fa232d33ca0749a1ea9a8))
 
 ### Changelog
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [v0.10.4](https://github.com/mattogodoy/nametag/compare/v0.10.3...v0.10.4)
+
+- 🐛 Fix: Roll back prisma installation removal [`6fdb2d5`](https://github.com/mattogodoy/nametag/commit/6fdb2d59f1398122f35fa232d33ca0749a1ea9a8)
+
 #### [v0.10.3](https://github.com/mattogodoy/nametag/compare/v0.10.2...v0.10.3)
 
+> 9 January 2026
+
+- 🔧 Chore: release v0.10.3 [`8334492`](https://github.com/mattogodoy/nametag/commit/83344920c9b6e7167d0125541049ba2303610b4b)
 - 🐛 Fix: Added prisma/engines module to build [`2e27822`](https://github.com/mattogodoy/nametag/commit/2e278226b17b49dc6d32953466db660bd97a0544)
 
 #### [v0.10.2](https://github.com/mattogodoy/nametag/compare/v0.10.1...v0.10.2)
