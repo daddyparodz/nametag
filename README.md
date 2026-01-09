@@ -21,19 +21,30 @@ Nametag solves this by giving you a single place to manage your personal network
 <summary>View screenshots</summary>
 
 ![People Management](docs/screenshots/sc2.png)
-*Manage your contacts with detailed information*
+![People Creation](docs/screenshots/sc7.png)
+*Create and manage your contacts with detailed information*
+
+---
 
 ![Person Details](docs/screenshots/sc3.png)
-*Track relationships and connections*
+![Relationship Types](docs/screenshots/sc6.png)
+*Define and manage custom relationship types*
 
-![Network Graph](docs/screenshots/sc4.png)
-*Visualize your network as an interactive graph*
+---
+
+![Person Details](docs/screenshots/sc4.png)
+*Keep up-to-date information about the people you care about*
+
+---
 
 ![Groups](docs/screenshots/sc5.png)
 *Organize people into custom groups*
 
-![Dark Mode](docs/screenshots/sc6.png)
-*Full dark mode support*
+---
+
+![Light Mode](docs/screenshots/sc8.png)
+![Light Mode](docs/screenshots/sc9.png)
+*Clean light theme for comfortable daytime use*
 
 </details>
 
