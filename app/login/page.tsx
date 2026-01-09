@@ -152,7 +152,7 @@ export default function LoginPage() {
             </div>
           )}
           {error && (
-            <div className="bg-tertiary/30 border-2 border-tertiary text-tertiary px-4 py-3 rounded-lg shadow-lg shadow-tertiary/20 relative">
+            <div className="bg-warning/10 border-2 border-warning text-warning px-4 py-3 rounded-lg shadow-lg shadow-warning/20 relative">
               <p>{error}</p>
               {isUnverified && !resendSuccess && (
                 <div className="mt-2">

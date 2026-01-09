@@ -24,6 +24,7 @@
   --tertiary: #6DA8FF;
   --accent: #6DA8FF;
   --muted: rgba(27, 29, 33, 0.6);
+  --warning: #ff4800;
 }
 
 .dark {
@@ -45,6 +46,7 @@
   --tertiary: #2C3E9F;
   --accent: #2C3E9F;
   --muted: rgba(231, 234, 240, 0.65);
+  --warning: #ff4800;
 }
 
 @theme inline {
@@ -67,6 +69,7 @@
   --color-tertiary: var(--tertiary);
   --color-accent: var(--accent);
   --color-muted: var(--muted);
+  --color-warning: var(--warning);
 
   /* Use system font stack for better performance */
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;

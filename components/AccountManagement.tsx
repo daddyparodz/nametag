@@ -400,12 +400,12 @@ export default function AccountManagement({ groups, peopleCount }: AccountManage
             <div className={`border rounded-lg p-4 ${
               importValidation.valid
                 ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
-                : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                : 'bg-warning/10 border-2 border-warning'
             }`}>
               <h4 className={`font-medium mb-2 ${
                 importValidation.valid
                   ? 'text-blue-900 dark:text-blue-300'
-                  : 'text-red-900 dark:text-red-300'
+                  : 'text-warning'
               }`}>
                 {importValidation.valid ? 'Import Preview' : 'Import Limit Exceeded'}
               </h4>
@@ -488,10 +488,10 @@ export default function AccountManagement({ groups, peopleCount }: AccountManage
             Delete Account
           </Button>
         ) : (
-          <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-800 rounded-lg p-6 space-y-4">
+          <div className="bg-warning/10 border-2 border-warning rounded-lg p-6 space-y-4">
             <div className="flex items-start gap-3">
               <svg
-                className="w-6 h-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5"
+                className="w-6 h-6 text-warning flex-shrink-0 mt-0.5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

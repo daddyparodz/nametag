@@ -78,7 +78,7 @@ export default function DeleteUserRelationshipButton({
             </p>
 
             {error && (
-              <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-400 rounded text-sm">
+              <div className="mb-4 p-3 bg-warning/10 border-2 border-warning text-warning rounded text-sm">
                 {error}
               </div>
             )}

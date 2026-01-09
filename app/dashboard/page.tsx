@@ -245,7 +245,7 @@ export default async function DashboardPage() {
                     <div className="text-right">
                       <div className={`text-sm font-bold ${
                         event.daysUntil <= 0
-                          ? 'text-tertiary'
+                          ? 'text-warning'
                           : event.daysUntil <= 3
                           ? 'text-secondary'
                           : 'text-primary'
