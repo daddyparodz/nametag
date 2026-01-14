@@ -209,7 +209,6 @@ export default function RelationshipManager({
       if (!response.ok) {
         const data = await response.json();
         setError(data.error || 'Failed to delete relationship. Please try again.');
-        setIsLoading(false);
         return;
       }
 
@@ -218,6 +217,7 @@ export default function RelationshipManager({
       router.refresh();
     } catch (_error) {
       setError('Unable to connect to server. Please check your connection and try again.');
+    } finally {
       setIsLoading(false);
     }
   };
