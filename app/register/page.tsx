@@ -3,12 +3,14 @@
 import { useState, FormEvent, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { PasswordStrengthIndicator } from '@/components/PasswordStrengthIndicator';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 import { fetchAvailableProviders } from '@/lib/client-features';
 
 export default function RegisterPage() {
+  const router = useRouter();
   const t = useTranslations('auth');
   const tCommon = useTranslations('common');
   const tErrors = useTranslations('errors');
@@ -107,8 +109,16 @@ export default function RegisterPage() {
         return;
       }
 
-      // Show success message instead of auto-login
-      setSuccess(true);
+      // Check if email verification is required based on the response message
+      const requiresVerification = data.message?.toLowerCase().includes('check your email');
+
+      if (requiresVerification) {
+        // Show email verification screen
+        setSuccess(true);
+      } else {
+        // No verification needed, redirect to login
+        router.push('/login');
+      }
     } catch {
       setError(tErrors('server.networkError'));
     } finally {
