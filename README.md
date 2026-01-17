@@ -195,7 +195,7 @@ The database will be automatically set up on first run.
 | `NEXT_PUBLIC_APP_URL` | Public URL for redirects | `https://yourdomain.com` |
 | `NEXTAUTH_SECRET` | Secret for JWT encryption (min 32 chars) | Generate with `openssl rand -base64 32` |
 | `CRON_SECRET` | Secret for cron job authentication | Generate with `openssl rand -base64 16` |
-| `REDIS_URL` | Redis connection URL | `redis://:password@redis:6379` |
+| `REDIS_URL` | Redis connection URL (required for production, optional for dev) | `redis://:password@redis:6379` |
 | `REDIS_PASSWORD` | Redis authentication password | Generate with `openssl rand -base64 32` |
 
 #### Optional
@@ -281,6 +281,28 @@ Most SMTP servers restrict which addresses you can send from:
 **Rate Limiting**: SMTP is configured with connection pooling (max 5 concurrent connections) and rate limiting (5 messages/second). If the rate limit is exceeded, emails are automatically queued and sent with a delay. Note that the queue is in-memory only - if the application restarts, queued messages are lost.
 
 **Note**: The hosted service at [nametag.one](https://nametag.one) requires email verification for security, but self-hosted instances are designed for personal use and auto-verify all accounts.
+
+### Redis Setup
+
+Redis is used for rate limiting authentication endpoints (login, registration, password resets) to protect against brute force attacks.
+
+**For Production Deployments:**
+- Redis is **required** and the application will fail to start without it
+- Protects against distributed attacks when running multiple app instances
+- Ensures rate limits persist across server restarts
+
+**For Development/Testing:**
+- Redis is **optional** - the app will use in-memory rate limiting if Redis isn't configured
+- In-memory fallback works fine for local development
+- Limitations: Resets on server restart and doesn't work across multiple instances
+
+**To run without Redis in development:**
+1. Simply omit the `REDIS_URL` environment variable from your `.env` file
+2. Remove or comment out the Redis service from `docker-compose.yml`
+3. The app will log a warning and continue with in-memory rate limiting
+
+**To enable Redis:**
+Follow the Quick Start guide above which includes Redis configuration. The Redis service is already included in the example `docker-compose.yml`.
 
 ### Restricting Registration (Optional)
 
