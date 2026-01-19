@@ -8,7 +8,7 @@ set -e
 echo "Running unit tests..."
 echo "====================="
 
-npx vitest run tests/lib tests/api
+npx vitest run --config vitest.config.mts tests/lib tests/api
 
 echo ""
 echo "Unit tests completed successfully!"

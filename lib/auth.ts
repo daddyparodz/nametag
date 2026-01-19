@@ -142,6 +142,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.surname = user.surname;
         token.nickname = user.nickname;
         token.email = user.email;
+        const { prisma } = await import('@/lib/prisma');
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { language: true },
+        });
+        token.language = dbUser?.language || null;
       }
       // Update token when session is updated
       if (trigger === 'update' && session) {
@@ -149,6 +155,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.surname = session.surname;
         token.nickname = session.nickname;
         token.email = session.email;
+        const updatedLanguage =
+          (session as { language?: string | null }).language
+          ?? (session as { user?: { language?: string | null } }).user?.language;
+        if (updatedLanguage !== undefined) {
+          token.language = updatedLanguage;
+        }
       }
       return token;
     },
@@ -159,6 +171,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.surname = token.surname as string | null;
         session.user.nickname = token.nickname as string | null;
         session.user.email = token.email as string;
+        session.user.language = (token.language as string | null) ?? null;
       }
       return session;
     },

@@ -19,7 +19,7 @@ model User {
   nickname           String?
   theme              Theme     @default(DARK)
   dateFormat         DateFormat @default(MDY)
-  language           String?   @default("en") // "en" or "es-ES"
+  language           String?   @default("en") // "en", "es-ES", or "it-IT"
   emailVerified      Boolean   @default(false)
   emailVerifyToken   String?   @unique
   emailVerifyExpires DateTime?

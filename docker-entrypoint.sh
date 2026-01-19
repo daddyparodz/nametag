@@ -3,6 +3,19 @@ set -e
 
 echo "🚀 Starting Nametag initialization..."
 
+# Ensure runtime build output is writable (dev bind mounts can break this)
+ensure_next_writable() {
+  if [ ! -d "/app/.next" ]; then
+    mkdir -p /app/.next 2>/dev/null || true
+  fi
+
+  if [ ! -w "/app/.next" ]; then
+    echo "WARNING: /app/.next is not writable by the current user."
+    echo "If running with bind mounts, fix permissions or run the container as a user that can write to /app."
+  fi
+}
+
+
 # Function to check if database is ready
 wait_for_db() {
   echo "⏳ Waiting for database to be ready..."
@@ -50,6 +63,9 @@ check_migrations_needed() {
 }
 
 # Main initialization process
+# Check .next writable before starting
+ensure_next_writable
+
 # Wait for database to be ready
 wait_for_db
 

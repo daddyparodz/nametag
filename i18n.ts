@@ -1,5 +1,5 @@
 import { getRequestConfig } from 'next-intl/server';
-import { cookies, headers } from 'next/headers';
+import { cookies } from 'next/headers';
 import { DEFAULT_LOCALE, type SupportedLocale, isSupportedLocale } from './lib/locale';
 
 /**
@@ -17,36 +17,6 @@ export default getRequestConfig(async () => {
 
     if (localeCookie?.value && isSupportedLocale(localeCookie.value)) {
       locale = localeCookie.value;
-    } else {
-      // Fall back to browser detection
-      const headersList = await headers();
-      const acceptLanguage = headersList.get('accept-language');
-
-      if (acceptLanguage) {
-        const locales = acceptLanguage
-          .split(',')
-          .map(lang => {
-            const [localeStr] = lang.trim().split(';');
-            return localeStr.trim();
-          });
-
-        for (const browserLocale of locales) {
-          if (isSupportedLocale(browserLocale)) {
-            locale = browserLocale;
-            break;
-          }
-
-          const languageCode = browserLocale.split('-')[0].toLowerCase();
-          if (languageCode === 'es') {
-            locale = 'es-ES';
-            break;
-          }
-          if (languageCode === 'en') {
-            locale = 'en';
-            break;
-          }
-        }
-      }
     }
   } catch (error) {
     console.error('Error detecting locale:', error);

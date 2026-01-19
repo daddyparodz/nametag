@@ -67,7 +67,10 @@ export default function ProfileForm({ currentName, currentSurname, currentNickna
 
       if (data.emailChanged) {
         // Email was changed - sign out the user
-        await signOut({ callbackUrl: '/login' });
+        await signOut({ redirect: false });
+        if (typeof window !== 'undefined') {
+          window.location.href = `${window.location.origin}/login`;
+        }
         return;
       }
 

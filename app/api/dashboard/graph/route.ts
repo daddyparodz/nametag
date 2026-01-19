@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { formatGraphName } from '@/lib/nameUtils';
 import { apiResponse, handleApiError, withAuth } from '@/lib/api-utils';
+import { getTranslations } from 'next-intl/server';
+import { getRelationshipTypeDisplayLabel } from '@/lib/relationship-type-labels';
 
 type DashboardGraphPerson = {
   id: string;
@@ -8,6 +10,7 @@ type DashboardGraphPerson = {
   surname: string | null;
   nickname: string | null;
   relationshipToUser: {
+    name: string;
     label: string;
     color: string | null;
   } | null;
@@ -23,9 +26,11 @@ type DashboardGraphPerson = {
       | {
           label: string;
           color: string | null;
+          name: string;
           inverse: {
             label: string;
             color: string | null;
+            name: string;
           } | null;
         }
       | null;
@@ -49,6 +54,7 @@ interface GraphEdge {
 
 export const GET = withAuth(async (request, session) => {
   try {
+    const tRelationshipTypeDefaults = await getTranslations('relationshipTypes.defaults');
     // Parse query parameters for filtering
     const { searchParams } = new URL(request.url);
     const groupIds = searchParams.getAll('groupIds'); // Get all groupIds parameters
@@ -86,6 +92,7 @@ export const GET = withAuth(async (request, session) => {
             deletedAt: null,
           },
           select: {
+            name: true,
             label: true,
             color: true,
           },
@@ -119,6 +126,7 @@ export const GET = withAuth(async (request, session) => {
                 deletedAt: null,
               },
               select: {
+                name: true,
                 label: true,
                 color: true,
                 inverse: {
@@ -126,6 +134,7 @@ export const GET = withAuth(async (request, session) => {
                     deletedAt: null,
                   },
                   select: {
+                    name: true,
                     label: true,
                     color: true,
                   },
@@ -173,7 +182,7 @@ export const GET = withAuth(async (request, session) => {
         edges.push({
           source: userId,
           target: person.id,
-          type: person.relationshipToUser.label,
+          type: getRelationshipTypeDisplayLabel(person.relationshipToUser, tRelationshipTypeDefaults),
           color: person.relationshipToUser.color || '#9CA3AF',
         });
       }
@@ -198,8 +207,10 @@ export const GET = withAuth(async (request, session) => {
 
             // If we swapped the direction, use the inverse relationship label
             const relationshipLabel = isSwapped && rel.relationshipType?.inverse
-              ? rel.relationshipType.inverse.label
-              : (rel.relationshipType?.label || 'Unknown');
+              ? getRelationshipTypeDisplayLabel(rel.relationshipType.inverse, tRelationshipTypeDefaults)
+              : (rel.relationshipType
+                ? getRelationshipTypeDisplayLabel(rel.relationshipType, tRelationshipTypeDefaults)
+                : 'Unknown');
 
             const relationshipColor = isSwapped && rel.relationshipType?.inverse
               ? rel.relationshipType.inverse.color

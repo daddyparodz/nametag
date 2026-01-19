@@ -1,7 +1,7 @@
 /**
  * Centralized error and success message keys for i18n
  *
- * These keys map to translations in locales/en.json and locales/es-ES.json
+ * These keys map to translations in locales/en.json, locales/es-ES.json, and locales/it-IT.json
  * Usage: Use getTranslations() to resolve keys to localized strings
  */
 

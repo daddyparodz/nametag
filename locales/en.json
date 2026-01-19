@@ -102,7 +102,8 @@
         "title": "Language",
         "description": "Choose your preferred language",
         "en": "English",
-        "esES": "Español (España)"
+        "esES": "Español (España)",
+        "itIT": "Italiano (Italia)"
       }
     },
     "security": {
@@ -591,6 +592,27 @@
     "createNewType": "Create New Type",
     "color": "Color",
     "relationship": "Relationship",
+    "defaults": {
+      "parent": "Parent",
+      "child": "Child",
+      "grandparent": "Grandparent",
+      "grandchild": "Grandchild",
+      "auntUncle": "Aunt/Uncle",
+      "nieceNephew": "Niece/Nephew",
+      "cousin": "Cousin",
+      "stepParent": "Step-Parent",
+      "stepChild": "Step-Child",
+      "parentInLaw": "Parent-in-Law",
+      "childInLaw": "Child-in-Law",
+      "siblingInLaw": "Sibling-in-Law",
+      "sibling": "Sibling",
+      "spouse": "Spouse",
+      "partner": "Partner",
+      "friend": "Friend",
+      "colleague": "Colleague",
+      "acquaintance": "Acquaintance",
+      "other": "Other"
+    },
     "inverseRelationship": "Inverse Relationship",
     "actions": "Actions",
     "usedTimes": "Used {count} time(s)",
@@ -615,6 +637,7 @@
       "labelRequired": "Relationship Label *",
       "labelPlaceholder": "e.g., Mentor, Student, Neighbor",
       "labelHelp": "The name that will be displayed to users",
+      "labelDefaultHint": "Default types stay translated unless you rename them.",
       "inverseRelationship": "Inverse Relationship",
       "symmetric": "Symmetric (same as inverse)",
       "symmetricHelp": "Both directions will use the same label (e.g., Friend ↔ Friend)",

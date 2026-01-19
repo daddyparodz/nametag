@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendEmail, emailTemplates } from '@/lib/email';
 import { formatFullName } from '@/lib/nameUtils';
+import { DEFAULT_LOCALE, type SupportedLocale } from '@/lib/locale';
 import { env } from '@/lib/env';
 import { handleApiError } from '@/lib/api-utils';
 import { logger, securityLogger } from '@/lib/logger';
@@ -69,7 +70,7 @@ export async function GET(request: Request) {
       if (shouldSend) {
         const { person } = importantDate;
         const userEmail = person.user.email;
-        const userLanguage = (person.user.language as 'en' | 'es-ES') || 'en';
+        const userLanguage = (person.user.language as SupportedLocale) || DEFAULT_LOCALE;
         const personName = formatFullName(person);
         const formattedDate = formatDateForEmail(
           importantDate.date,
@@ -142,14 +143,15 @@ export async function GET(request: Request) {
       const shouldSend = shouldSendContactReminder(person, today);
 
       if (shouldSend) {
-        const userLanguage = (person.user.language as 'en' | 'es-ES') || 'en';
+        const userLanguage = (person.user.language as SupportedLocale) || DEFAULT_LOCALE;
         const personName = formatFullName(person);
         const lastContactFormatted = person.lastContact
           ? formatDateForEmail(person.lastContact, person.user.dateFormat, userLanguage)
           : null;
         const intervalText = formatInterval(
           person.contactReminderInterval || 1,
-          person.contactReminderIntervalUnit || 'MONTHS'
+          person.contactReminderIntervalUnit || 'MONTHS',
+          userLanguage
         );
 
         // Generate unsubscribe token
@@ -411,22 +413,45 @@ function shouldSendContactReminder(
   return true;
 }
 
-function formatInterval(interval: number, unit: string): string {
-  const unitLower = unit.toLowerCase();
-  if (interval === 1) {
-    // Remove trailing 's' for singular
-    return `${interval} ${unitLower.slice(0, -1)}`;
-  }
-  return `${interval} ${unitLower}`;
+function formatInterval(interval: number, unit: string, locale: SupportedLocale): string {
+  const normalizedUnit = unit.toUpperCase();
+  const isSingular = interval === 1;
+
+  const units = {
+    en: {
+      DAYS: ['day', 'days'],
+      WEEKS: ['week', 'weeks'],
+      MONTHS: ['month', 'months'],
+      YEARS: ['year', 'years'],
+    },
+    'es-ES': {
+      DAYS: ['día', 'días'],
+      WEEKS: ['semana', 'semanas'],
+      MONTHS: ['mes', 'meses'],
+      YEARS: ['año', 'años'],
+    },
+    'it-IT': {
+      DAYS: ['giorno', 'giorni'],
+      WEEKS: ['settimana', 'settimane'],
+      MONTHS: ['mese', 'mesi'],
+      YEARS: ['anno', 'anni'],
+    },
+  } as const;
+
+  const localeUnits = units[locale] || units.en;
+  const unitKey = normalizedUnit as keyof typeof localeUnits;
+  const [singular, plural] = localeUnits[unitKey] || localeUnits.MONTHS;
+
+  return `${interval} ${isSingular ? singular : plural}`;
 }
 
 function formatDateForEmail(
   date: Date,
   dateFormat: string | null,
-  locale: 'en' | 'es-ES' = 'en'
+  locale: SupportedLocale = DEFAULT_LOCALE
 ): string {
   const d = new Date(date);
-  const localeCode = locale === 'es-ES' ? 'es-ES' : 'en-US';
+  const localeCode = locale === 'en' ? 'en-US' : locale;
   const month = d.toLocaleDateString(localeCode, { month: 'long' });
   const day = d.getDate();
   const year = d.getFullYear();

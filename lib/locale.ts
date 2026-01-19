@@ -1,16 +1,8 @@
 import { cookies, headers } from 'next/headers';
 import { prisma } from './prisma';
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES, type SupportedLocale } from './i18n-config';
 
-/**
- * Supported locales
- */
-export const SUPPORTED_LOCALES = ['en', 'es-ES'] as const;
-export type SupportedLocale = typeof SUPPORTED_LOCALES[number];
-
-/**
- * Default locale
- */
-export const DEFAULT_LOCALE: SupportedLocale = 'en';
+export { DEFAULT_LOCALE, SUPPORTED_LOCALES, type SupportedLocale } from './i18n-config';
 
 /**
  * Cookie name for locale preference
@@ -42,6 +34,10 @@ export function normalizeLocale(locale: string): SupportedLocale {
 
   if (languageCode === 'en') {
     return 'en';
+  }
+
+  if (languageCode === 'it') {
+    return 'it-IT';
   }
 
   return DEFAULT_LOCALE;
@@ -140,6 +136,9 @@ export async function detectBrowserLocale(): Promise<SupportedLocale> {
       if (languageCode === 'en') {
         return 'en';
       }
+      if (languageCode === 'it') {
+        return 'it-IT';
+      }
     }
 
     return DEFAULT_LOCALE;
@@ -172,7 +171,7 @@ export async function getUserLanguageFromDB(userId: string): Promise<SupportedLo
 
 /**
  * Get locale for the current user
- * Priority: User DB preference → Cookie → Browser detection → Default
+ * Priority: User DB preference -> Cookie -> Default
  */
 export async function getUserLocale(userId?: string): Promise<SupportedLocale> {
   // 1. Try user's database preference (if logged in)
@@ -189,11 +188,8 @@ export async function getUserLocale(userId?: string): Promise<SupportedLocale> {
     return cookieLocale;
   }
 
-  // 3. Try browser detection
-  const browserLocale = await detectBrowserLocale();
-
-  // 4. Fallback to default
-  return browserLocale || DEFAULT_LOCALE;
+  // 3. Fallback to default
+  return DEFAULT_LOCALE;
 }
 
 /**
@@ -214,3 +210,4 @@ export async function updateUserLanguage(
     return false;
   }
 }
+

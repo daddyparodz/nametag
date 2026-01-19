@@ -4,6 +4,10 @@ import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import {
+  DEFAULT_RELATIONSHIP_TYPE_LABELS,
+  getRelationshipTypeDisplayLabel,
+} from '@/lib/relationship-type-labels';
 import RelationshipTypeAutocomplete from './RelationshipTypeAutocomplete';
 import { Button } from './ui/Button';
 
@@ -43,14 +47,23 @@ export default function RelationshipTypeForm({
   mode,
 }: RelationshipTypeFormProps) {
   const t = useTranslations('relationshipTypes.form');
+  const tRelationshipTypeDefaults = useTranslations('relationshipTypes.defaults');
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const initialLabel = relationshipType?.label || '';
+  const initialDisplayLabel = relationshipType
+    ? getRelationshipTypeDisplayLabel(relationshipType, tRelationshipTypeDefaults)
+    : '';
+  const normalizedName = relationshipType?.name?.toUpperCase() || '';
+  const isDefaultType = !!relationshipType?.name
+    && Object.prototype.hasOwnProperty.call(DEFAULT_RELATIONSHIP_TYPE_LABELS, normalizedName);
   const [formData, setFormData] = useState({
-    label: relationshipType?.label || '',
+    label: initialDisplayLabel,
     color: relationshipType?.color || PRESET_COLORS[0],
   });
+  const [isLabelDirty, setIsLabelDirty] = useState(false);
 
   // Track inverse relationship
   const [inverseValue, setInverseValue] = useState(relationshipType?.inverseId || '');
@@ -91,12 +104,20 @@ export default function RelationshipTypeForm({
           : `/api/relationship-types/${relationshipType?.id}`;
       const method = mode === 'create' ? 'POST' : 'PUT';
 
-      // Generate internal name from label
-      const name = sanitizeName(formData.label);
+      const labelForPayload =
+        mode === 'edit' && relationshipType && isDefaultType && !isLabelDirty
+          ? initialLabel
+          : formData.label;
+
+      const name =
+        mode === 'edit' && relationshipType && isDefaultType
+          ? relationshipType.name
+          : sanitizeName(labelForPayload);
 
       // Prepare payload
       const payload: RelationshipTypePayload = {
         ...formData,
+        label: labelForPayload,
         name,
       };
 
@@ -167,13 +188,23 @@ export default function RelationshipTypeForm({
           id="label"
           required
           value={formData.label}
-          onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+          onChange={(e) => {
+            setFormData({ ...formData, label: e.target.value });
+            if (!isLabelDirty) {
+              setIsLabelDirty(true);
+            }
+          }}
           className="w-full px-3 py-2 border border-border rounded-lg bg-surface text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder={t('labelPlaceholder')}
         />
         <p className="text-xs text-muted mt-1">
           {t('labelHelp')}
         </p>
+        {mode === 'edit' && isDefaultType && (
+          <p className="text-xs text-muted mt-1">
+            {t('labelDefaultHint')}
+          </p>
+        )}
       </div>
 
       <div>

@@ -4,25 +4,24 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import 'flag-icons/css/flag-icons.min.css';
+import { useSession } from 'next-auth/react';
+import { LANGUAGE_OPTIONS, type SupportedLocale } from '@/lib/i18n-config';
 
 interface LanguageSelectorProps {
-  currentLanguage: 'en' | 'es-ES';
+  currentLanguage: SupportedLocale;
 }
 
-const LANGUAGES = [
-  { code: 'en' as const, name: 'English', flag: 'gb' },
-  { code: 'es-ES' as const, name: 'Español (España)', flag: 'es' },
-];
 
 export default function LanguageSelector({ currentLanguage }: LanguageSelectorProps) {
   const t = useTranslations('settings.appearance.language');
   const tSuccess = useTranslations('success.profile');
   const tCommon = useTranslations('common');
+  const { update } = useSession();
 
   const [selectedLanguage, setSelectedLanguage] = useState(currentLanguage);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLanguageChange = async (newLanguage: 'en' | 'es-ES') => {
+  const handleLanguageChange = async (newLanguage: SupportedLocale) => {
     if (isLoading || newLanguage === selectedLanguage) return;
 
     setIsLoading(true);
@@ -42,10 +41,12 @@ export default function LanguageSelector({ currentLanguage }: LanguageSelectorPr
 
       // Set cookie for immediate effect
       const domain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
-      const secure = process.env.NODE_ENV === 'production' ? '; secure' : '';
+      const secure = window.location.protocol === 'https:' ? '; secure' : '';
       const domainAttr = domain ? `; domain=${domain}` : '';
 
       document.cookie = `NEXT_LOCALE=${newLanguage}; path=/; max-age=${365 * 24 * 60 * 60}; samesite=lax${secure}${domainAttr}`;
+
+      await update({ language: newLanguage });
 
       toast.success(tSuccess('languageChanged'));
 
@@ -66,7 +67,7 @@ export default function LanguageSelector({ currentLanguage }: LanguageSelectorPr
       </p>
 
       <div className="space-y-3">
-        {LANGUAGES.map((language) => {
+        {LANGUAGE_OPTIONS.map((language) => {
           const isSelected = selectedLanguage === language.code;
 
           return (
@@ -86,7 +87,7 @@ export default function LanguageSelector({ currentLanguage }: LanguageSelectorPr
                   {language.name}
                 </div>
                 <div className="text-sm text-muted">
-                  {t(language.code === 'en' ? 'en' : 'esES')}
+                  {t(language.labelKey)}
                 </div>
               </div>
               {isSelected && (

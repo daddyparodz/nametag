@@ -51,6 +51,7 @@ services:
       # (.env uses 'localhost' for local dev, Docker needs 'db' and 'redis')
       - DATABASE_URL=${DATABASE_URL:-postgresql://${DB_USER:-nametag}:${DB_PASSWORD}@db:5432/${DB_NAME:-nametag_db}}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - NEXT_TELEMETRY_DISABLED=1
     volumes:
       # Mount source code for hot-reload
       - .:/app

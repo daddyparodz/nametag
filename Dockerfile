@@ -2,22 +2,30 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Disable Next.js telemetry
+ENV NEXT_TELEMETRY_DISABLED=1
+
 # Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 
 # Install dependencies based on the package files
-COPY package*.json ./
+COPY --chown=nextjs:nodejs package*.json ./
 RUN npm ci
 
 # Copy application files
-COPY . .
+COPY --chown=nextjs:nodejs . .
+
+# Generate Prisma Client for runtime (avoids missing .prisma in production)
+RUN DATABASE_URL="postgresql://dummy:dummy@dummy:5432/dummy" npx prisma generate
 
 # Copy and setup entrypoint script
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod 755 /usr/local/bin/docker-entrypoint.sh && chown nextjs:nodejs /usr/local/bin/docker-entrypoint.sh
 
-# Ensure app directory is writable by non-root user (Next dev writes .next)
-RUN chown -R nextjs:nodejs /app
+# Ensure runtime build output is writable by non-root user
+RUN mkdir -p /app/.next && chown -R nextjs:nodejs /app/.next
+
+ 
 
 # Expose port 3000
 EXPOSE 3000
