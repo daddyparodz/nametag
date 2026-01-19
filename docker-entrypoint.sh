@@ -3,6 +3,22 @@ set -e
 
 echo "🚀 Starting Nametag initialization..."
 
+# Construct DATABASE_URL from individual DB_* variables if not already set
+if [ -z "${DATABASE_URL}" ]; then
+  if [ -n "${DB_HOST}" ] && [ -n "${DB_PORT}" ] && [ -n "${DB_NAME}" ] && [ -n "${DB_USER}" ]; then
+    if [ -n "${DB_PASSWORD}" ]; then
+      export DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+    else
+      export DATABASE_URL="postgresql://${DB_USER}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+    fi
+    echo "ℹ️  Constructed DATABASE_URL from DB_* variables"
+  else
+    echo "❌ Error: Neither DATABASE_URL nor complete DB_* variables are set"
+    echo "   Required: DB_HOST, DB_PORT, DB_NAME, DB_USER (DB_PASSWORD is optional)"
+    exit 1
+  fi
+fi
+
 # Function to check if database is ready
 wait_for_db() {
   echo "⏳ Waiting for database to be ready..."
