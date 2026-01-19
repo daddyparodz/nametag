@@ -342,7 +342,7 @@ async function main() {
       surname: 'Johnson',
       lastContact: new Date('2024-11-20'),
       notes: "John's wife. Teacher at elementary school. Phone: +1 (555) 234-5678. Address: 123 Main St, Springfield, IL",
-      relationshipToUserId: relativeType.id,
+      relationshipToUserId: siblingInLawType.id,
       groups: {
         create: [{ groupId: familyGroup.id }],
       },
@@ -358,7 +358,7 @@ async function main() {
       name: 'Emma',
       surname: 'Smith',
       notes: "John and Sarah's daughter. Loves reading and drawing.",
-      relationshipToUserId: relativeType.id,
+      relationshipToUserId: nieceNephewType.id,
       groups: {
         create: [{ groupId: familyGroup.id }],
       },
@@ -374,7 +374,7 @@ async function main() {
       name: 'Lucas',
       surname: 'Smith',
       notes: "John and Sarah's son. Plays soccer.",
-      relationshipToUserId: relativeType.id,
+      relationshipToUserId: nieceNephewType.id,
       groups: {
         create: [{ groupId: familyGroup.id }],
       },
