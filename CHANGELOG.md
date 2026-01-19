@@ -6,23 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [0.15.2](https://github.com/mattogodoy/nametag/compare/v0.15.1...v0.15.2) (2026-01-19)
+## [0.15.3](https://github.com/mattogodoy/nametag/compare/v0.15.2...v0.15.3) (2026-01-19)
 
 ### Bug Fixes
 
-* Mock commit to increase version number. Adding breaking changes notice ([5dbcb98](https://github.com/mattogodoy/nametag/commit/5dbcb981aff934b200407e2e8f5a2a2cbeffb887))
+* Fix for docker entrypoint with the new env variables for database. ([6a69f97](https://github.com/mattogodoy/nametag/commit/6a69f97170c38e1341d16f911ee114e0910fef45))
 
 ### Changelog
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [v0.15.3](https://github.com/mattogodoy/nametag/compare/v0.15.2...v0.15.3)
+
+- 🔧 Chore: Small fixes in documentation [`1762b96`](https://github.com/mattogodoy/nametag/commit/1762b961c49ab9cec170a3ad5ff40ee704af6db6)
+- 🐛 Fix: Fix for docker entrypoint with the new env variables for database. [`6a69f97`](https://github.com/mattogodoy/nametag/commit/6a69f97170c38e1341d16f911ee114e0910fef45)
+
 #### [v0.15.2](https://github.com/mattogodoy/nametag/compare/v0.15.1...v0.15.2)
+
+> 19 January 2026
 
 - [refactor] Simplify dev environment [`#39`](https://github.com/mattogodoy/nametag/pull/39)
 - ♻️ Refactor: Many quality of life improvements for contributors and self-hosters: [`9db9abd`](https://github.com/mattogodoy/nametag/commit/9db9abd335d4a6cd569bbd2de1a5a39e65028fc0)
 - 🔧 Chore: Some improvements for devcontainers [`09d629e`](https://github.com/mattogodoy/nametag/commit/09d629e0149ab50868ac7069314e69ddecb433d6)
 - 🔧 Chore: Update roadmap and some linting in README [`6f836d5`](https://github.com/mattogodoy/nametag/commit/6f836d5f560da4a9667cb406556f5f388ab80818)
 - 🔧 Chore: Ensure the release is only published after the Docker builds succeed [`b322a63`](https://github.com/mattogodoy/nametag/commit/b322a63d5fe79ff82cb771142722cc55ae3d04a7)
+- 🔧 Chore: release v0.15.2 [`cdd2230`](https://github.com/mattogodoy/nametag/commit/cdd22308f6210fa7803e015f4194528ec058ace8)
 - 🔧 Chore: Improved documentation about Redis in the README file. [`7afdc49`](https://github.com/mattogodoy/nametag/commit/7afdc4911a85e4303444a58ed45684e0ed9e1e9b)
 - 🔧 Chore: Adjusted roadmap priorities [`b714ed9`](https://github.com/mattogodoy/nametag/commit/b714ed9f9a5e63c93875fde1a07b9ed1db1e7621)
 - 🐛 Fix: Mock commit to increase version number. Adding breaking changes notice [`5dbcb98`](https://github.com/mattogodoy/nametag/commit/5dbcb981aff934b200407e2e8f5a2a2cbeffb887)
