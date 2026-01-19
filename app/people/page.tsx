@@ -7,6 +7,7 @@ import EmptyState from '@/components/EmptyState';
 import { formatDate } from '@/lib/date-format';
 import { canCreateResource } from '@/lib/billing/subscription';
 import { getTranslations } from 'next-intl/server';
+import { getRelationshipTypeDisplayLabel } from '@/lib/relationship-type-labels';
 
 const ITEMS_PER_PAGE = 50;
 
@@ -18,6 +19,7 @@ export default async function PeoplePage({
   const session = await auth();
   const t = await getTranslations('people');
   const tCommon = await getTranslations('common');
+  const tRelationshipTypeDefaults = await getTranslations('relationshipTypes.defaults');
 
   if (!session?.user) {
     redirect('/login');
@@ -56,6 +58,7 @@ export default async function PeoplePage({
     include: {
       relationshipToUser: {
         select: {
+          name: true,
           label: true,
           color: true,
         },
@@ -102,8 +105,12 @@ export default async function PeoplePage({
         primaryComparison = aNickname.localeCompare(bNickname);
         break;
       case 'relationship':
-        const aRel = a.relationshipToUser?.label || 'zzz'; // Put indirect relationships at the end
-        const bRel = b.relationshipToUser?.label || 'zzz';
+        const aRel = a.relationshipToUser
+          ? getRelationshipTypeDisplayLabel(a.relationshipToUser, tRelationshipTypeDefaults)
+          : 'zzz'; // Put indirect relationships at the end
+        const bRel = b.relationshipToUser
+          ? getRelationshipTypeDisplayLabel(b.relationshipToUser, tRelationshipTypeDefaults)
+          : 'zzz';
         primaryComparison = aRel.localeCompare(bRel);
         break;
       case 'group':
@@ -334,7 +341,7 @@ export default async function PeoplePage({
                               color: person.relationshipToUser.color || '#374151',
                             }}
                           >
-                            {person.relationshipToUser.label}
+                        {getRelationshipTypeDisplayLabel(person.relationshipToUser, tRelationshipTypeDefaults)}
                           </span>
                         ) : (
                           <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium text-muted bg-surface-elevated">

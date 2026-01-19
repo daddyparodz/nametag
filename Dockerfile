@@ -78,7 +78,10 @@ COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/clie
 
 # Copy and setup entrypoint script (as root before switching users)
 COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
+RUN chmod 755 /usr/local/bin/docker-entrypoint.sh && chown nextjs:nodejs /usr/local/bin/docker-entrypoint.sh
+
+# Ensure runtime build output is writable by non-root user
+RUN mkdir -p /app/.next && chown -R nextjs:nodejs /app/.next
 
 # Switch to non-root user
 USER nextjs

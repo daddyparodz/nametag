@@ -51,6 +51,96 @@ async function main() {
     },
   });
 
+  const grandparentType = await prisma.relationshipType.create({
+    data: {
+      userId: user.id,
+      name: 'GRANDPARENT',
+      label: 'Grandparent',
+      color: '#F97316',
+    },
+  });
+
+  const grandchildType = await prisma.relationshipType.create({
+    data: {
+      userId: user.id,
+      name: 'GRANDCHILD',
+      label: 'Grandchild',
+      color: '#FB923C',
+    },
+  });
+
+  const auntUncleType = await prisma.relationshipType.create({
+    data: {
+      userId: user.id,
+      name: 'AUNT_UNCLE',
+      label: 'Aunt/Uncle',
+      color: '#A855F7',
+    },
+  });
+
+  const nieceNephewType = await prisma.relationshipType.create({
+    data: {
+      userId: user.id,
+      name: 'NIECE_NEPHEW',
+      label: 'Niece/Nephew',
+      color: '#D946EF',
+    },
+  });
+
+  const cousinType = await prisma.relationshipType.create({
+    data: {
+      userId: user.id,
+      name: 'COUSIN',
+      label: 'Cousin',
+      color: '#0EA5E9',
+    },
+  });
+
+  const stepParentType = await prisma.relationshipType.create({
+    data: {
+      userId: user.id,
+      name: 'STEP_PARENT',
+      label: 'Step-Parent',
+      color: '#EF4444',
+    },
+  });
+
+  const stepChildType = await prisma.relationshipType.create({
+    data: {
+      userId: user.id,
+      name: 'STEP_CHILD',
+      label: 'Step-Child',
+      color: '#F43F5E',
+    },
+  });
+
+  const parentInLawType = await prisma.relationshipType.create({
+    data: {
+      userId: user.id,
+      name: 'PARENT_IN_LAW',
+      label: 'Parent-in-Law',
+      color: '#22C55E',
+    },
+  });
+
+  const childInLawType = await prisma.relationshipType.create({
+    data: {
+      userId: user.id,
+      name: 'CHILD_IN_LAW',
+      label: 'Child-in-Law',
+      color: '#16A34A',
+    },
+  });
+
+  const siblingInLawType = await prisma.relationshipType.create({
+    data: {
+      userId: user.id,
+      name: 'SIBLING_IN_LAW',
+      label: 'Sibling-in-Law',
+      color: '#06B6D4',
+    },
+  });
+
   const siblingType = await prisma.relationshipType.create({
     data: {
       userId: user.id,
@@ -105,15 +195,6 @@ async function main() {
     },
   });
 
-  const relativeType = await prisma.relationshipType.create({
-    data: {
-      userId: user.id,
-      name: 'RELATIVE',
-      label: 'Relative',
-      color: '#6366F1',
-    },
-  });
-
   const _otherType = await prisma.relationshipType.create({
     data: {
       userId: user.id,
@@ -132,6 +213,56 @@ async function main() {
   await prisma.relationshipType.update({
     where: { id: childType.id },
     data: { inverseId: parentType.id },
+  });
+
+  await prisma.relationshipType.update({
+    where: { id: grandparentType.id },
+    data: { inverseId: grandchildType.id },
+  });
+
+  await prisma.relationshipType.update({
+    where: { id: grandchildType.id },
+    data: { inverseId: grandparentType.id },
+  });
+
+  await prisma.relationshipType.update({
+    where: { id: auntUncleType.id },
+    data: { inverseId: nieceNephewType.id },
+  });
+
+  await prisma.relationshipType.update({
+    where: { id: nieceNephewType.id },
+    data: { inverseId: auntUncleType.id },
+  });
+
+  await prisma.relationshipType.update({
+    where: { id: cousinType.id },
+    data: { inverseId: cousinType.id },
+  });
+
+  await prisma.relationshipType.update({
+    where: { id: stepParentType.id },
+    data: { inverseId: stepChildType.id },
+  });
+
+  await prisma.relationshipType.update({
+    where: { id: stepChildType.id },
+    data: { inverseId: stepParentType.id },
+  });
+
+  await prisma.relationshipType.update({
+    where: { id: parentInLawType.id },
+    data: { inverseId: childInLawType.id },
+  });
+
+  await prisma.relationshipType.update({
+    where: { id: childInLawType.id },
+    data: { inverseId: parentInLawType.id },
+  });
+
+  await prisma.relationshipType.update({
+    where: { id: siblingInLawType.id },
+    data: { inverseId: siblingInLawType.id },
   });
 
   await prisma.relationshipType.update({
@@ -154,7 +285,7 @@ async function main() {
     data: { inverseId: friendType.id },
   });
 
-  console.log('✓ Created 10 relationship types for demo user');
+  console.log('✓ Created 20 relationship types for demo user');
 
   // Create groups
   const familyGroup = await prisma.group.create({

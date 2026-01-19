@@ -3,6 +3,18 @@ set -e
 
 echo "🚀 Starting Nametag initialization..."
 
+# Ensure runtime build output is writable (dev bind mounts can break this)
+ensure_next_writable() {
+  if [ ! -d "/app/.next" ]; then
+    mkdir -p /app/.next 2>/dev/null || true
+  fi
+
+  if [ ! -w "/app/.next" ]; then
+    echo "WARNING: /app/.next is not writable by the current user."
+    echo "If running with bind mounts, fix permissions or run the container as a user that can write to /app."
+  fi
+}
+
 # Construct DATABASE_URL from individual DB_* variables if not already set
 if [ -z "${DATABASE_URL}" ]; then
   if [ -n "${DB_HOST}" ] && [ -n "${DB_PORT}" ] && [ -n "${DB_NAME}" ] && [ -n "${DB_USER}" ]; then
@@ -11,9 +23,9 @@ if [ -z "${DATABASE_URL}" ]; then
     else
       export DATABASE_URL="postgresql://${DB_USER}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
     fi
-    echo "ℹ️  Constructed DATABASE_URL from DB_* variables"
+    echo "?  Constructed DATABASE_URL from DB_* variables"
   else
-    echo "❌ Error: Neither DATABASE_URL nor complete DB_* variables are set"
+    echo "? Error: Neither DATABASE_URL nor complete DB_* variables are set"
     echo "   Required: DB_HOST, DB_PORT, DB_NAME, DB_USER (DB_PASSWORD is optional)"
     exit 1
   fi
@@ -66,6 +78,9 @@ check_migrations_needed() {
 }
 
 # Main initialization process
+# Check .next writable before starting
+ensure_next_writable
+
 # Wait for database to be ready
 wait_for_db
 

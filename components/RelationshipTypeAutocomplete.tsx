@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import { getRelationshipTypeDisplayLabel } from '@/lib/relationship-type-labels';
 
 interface RelationshipType {
   id: string;
@@ -27,6 +28,7 @@ export default function RelationshipTypeAutocomplete({
   required = false,
 }: RelationshipTypeAutocompleteProps) {
   const t = useTranslations('relationshipTypes.autocomplete');
+  const tRelationshipTypeDefaults = useTranslations('relationshipTypes.defaults');
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
@@ -35,13 +37,18 @@ export default function RelationshipTypeAutocomplete({
 
   const placeholderText = placeholder || t('placeholder');
 
+  const displayTypes = types.map((type) => ({
+    ...type,
+    displayLabel: getRelationshipTypeDisplayLabel(type, tRelationshipTypeDefaults),
+  }));
+
   // Get the selected type's label or use the custom value
-  const selectedType = types.find((t) => t.id === value);
-  const displayValue = selectedType ? selectedType.label : isExisting ? '' : value || searchTerm;
+  const selectedType = displayTypes.find((t) => t.id === value);
+  const displayValue = selectedType ? selectedType.displayLabel : isExisting ? '' : value || searchTerm;
 
   // Filter types based on search term
-  const filteredTypes = types.filter((type) =>
-    type.label.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredTypes = displayTypes.filter((type) =>
+    type.displayLabel.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Close dropdown when clicking outside
@@ -178,7 +185,7 @@ export default function RelationshipTypeAutocomplete({
               onMouseEnter={() => setHighlightedIndex(index)}
             >
               <div className="text-foreground">
-                {type.label}
+                {type.displayLabel}
               </div>
             </button>
           ))}

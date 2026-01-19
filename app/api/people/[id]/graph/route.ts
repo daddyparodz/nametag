@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { formatGraphName } from '@/lib/nameUtils';
 import { apiResponse, handleApiError, withAuth } from '@/lib/api-utils';
+import { getTranslations } from 'next-intl/server';
+import { getRelationshipTypeDisplayLabel } from '@/lib/relationship-type-labels';
 
 interface GraphNode {
   id: string;
@@ -20,6 +22,7 @@ interface GraphEdge {
 export const GET = withAuth(async (_request, session, context) => {
   try {
     const { id } = await context!.params;
+    const tRelationshipTypeDefaults = await getTranslations('relationshipTypes.defaults');
 
     // Fetch the person with all their relationships
     const person = await prisma.person.findUnique({
@@ -145,7 +148,7 @@ export const GET = withAuth(async (_request, session, context) => {
       edges.push({
         source: person.id,
         target: userId,
-        type: person.relationshipToUser.label,
+        type: getRelationshipTypeDisplayLabel(person.relationshipToUser, tRelationshipTypeDefaults),
         color: person.relationshipToUser.color || '#9CA3AF',
       });
     }
@@ -168,7 +171,7 @@ export const GET = withAuth(async (_request, session, context) => {
         edges.push({
           source: rel.relatedPersonId,
           target: userId,
-          type: rel.relatedPerson.relationshipToUser.label,
+          type: getRelationshipTypeDisplayLabel(rel.relatedPerson.relationshipToUser, tRelationshipTypeDefaults),
           color: rel.relatedPerson.relationshipToUser.color || '#9CA3AF',
         });
       }
@@ -192,8 +195,10 @@ export const GET = withAuth(async (_request, session, context) => {
 
           // If we swapped the direction, use the inverse relationship label
           const relationshipLabel = isSwapped && rel.relationshipType?.inverse
-            ? rel.relationshipType.inverse.label
-            : (rel.relationshipType?.label || 'Unknown');
+            ? getRelationshipTypeDisplayLabel(rel.relationshipType.inverse, tRelationshipTypeDefaults)
+            : (rel.relationshipType
+              ? getRelationshipTypeDisplayLabel(rel.relationshipType, tRelationshipTypeDefaults)
+              : 'Unknown');
 
           const relationshipColor = isSwapped && rel.relationshipType?.inverse
             ? rel.relationshipType.inverse.color
@@ -226,8 +231,10 @@ export const GET = withAuth(async (_request, session, context) => {
 
             // If we swapped the direction, use the inverse relationship label
             const relationshipLabel = isSwapped && subRel.relationshipType?.inverse
-              ? subRel.relationshipType.inverse.label
-              : (subRel.relationshipType?.label || 'Unknown');
+              ? getRelationshipTypeDisplayLabel(subRel.relationshipType.inverse, tRelationshipTypeDefaults)
+              : (subRel.relationshipType
+                ? getRelationshipTypeDisplayLabel(subRel.relationshipType, tRelationshipTypeDefaults)
+                : 'Unknown');
 
             const relationshipColor = isSwapped && subRel.relationshipType?.inverse
               ? subRel.relationshipType.inverse.color

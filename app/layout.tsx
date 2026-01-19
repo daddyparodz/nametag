@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getUserLocale } from "@/lib/locale";
+import LocaleSync from "@/components/LocaleSync";
 import "./globals.css";
 
 // Use system fonts instead of Google Fonts to avoid network calls during Docker build
@@ -46,6 +47,7 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages} locale={locale}>
           <SessionProvider>
             <ThemeProvider initialTheme={initialTheme}>
+              <LocaleSync />
               {children}
             </ThemeProvider>
           </SessionProvider>

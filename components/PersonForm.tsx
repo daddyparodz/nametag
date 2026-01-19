@@ -10,6 +10,7 @@ import GroupsSelector from './GroupsSelector';
 import ImportantDatesManager from './ImportantDatesManager';
 import MarkdownEditor from './MarkdownEditor';
 import { Button } from './ui/Button';
+import { getRelationshipTypeDisplayLabel } from '@/lib/relationship-type-labels';
 
 type ReminderIntervalUnit = 'DAYS' | 'WEEKS' | 'MONTHS' | 'YEARS';
 
@@ -61,6 +62,7 @@ interface PersonFormProps {
   }>;
   relationshipTypes: Array<{
     id: string;
+    name: string;
     label: string;
     color: string | null;
   }>;
@@ -98,9 +100,15 @@ export default function PersonForm({
   reminderLimit,
 }: PersonFormProps) {
   const t = useTranslations('people.form');
+  const tRelationshipTypeDefaults = useTranslations('relationshipTypes.defaults');
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const relationshipTypeOptions = relationshipTypes.map((type) => ({
+    ...type,
+    displayLabel: getRelationshipTypeDisplayLabel(type, tRelationshipTypeDefaults),
+  }));
 
   // Initialize knownThrough from URL params if provided
   const initialKnownThroughPerson = initialKnownThrough
@@ -441,9 +449,9 @@ export default function PersonForm({
                 className="w-full px-3 py-2 border border-border rounded-lg bg-surface text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="">{t('selectRelationship')}</option>
-                {relationshipTypes.map((type) => (
+                {relationshipTypeOptions.map((type) => (
                   <option key={type.id} value={type.id}>
-                    {type.label}
+                    {type.displayLabel}
                   </option>
                 ))}
               </select>
@@ -493,9 +501,9 @@ export default function PersonForm({
                 className="w-full px-3 py-2 border border-border rounded-lg bg-surface text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="">{t('selectRelationship')}</option>
-                {relationshipTypes.map((type) => (
+                {relationshipTypeOptions.map((type) => (
                   <option key={type.id} value={type.id}>
-                    {type.label}
+                    {type.displayLabel}
                   </option>
                 ))}
               </select>
@@ -539,9 +547,9 @@ export default function PersonForm({
                 className="w-full px-3 py-2 border border-border rounded-lg bg-surface text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="">{t('selectRelationship')}</option>
-                {relationshipTypes.map((type) => (
+                {relationshipTypeOptions.map((type) => (
                   <option key={type.id} value={type.id}>
-                    {type.label}
+                    {type.displayLabel}
                   </option>
                 ))}
               </select>

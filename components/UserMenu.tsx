@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { handleSignOut } from '@/app/actions/auth';
+import { signOut } from 'next-auth/react';
 
 interface UserMenuProps {
   userEmail?: string;
@@ -34,7 +34,10 @@ export default function UserMenu({ userEmail, userName, userNickname }: UserMenu
   }, [isOpen]);
 
   const onSignOut = async () => {
-    await handleSignOut();
+    await signOut({ redirect: false });
+    if (typeof window !== 'undefined') {
+      window.location.href = `${window.location.origin}/login`;
+    }
   };
 
   return (

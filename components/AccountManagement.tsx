@@ -257,7 +257,10 @@ export default function AccountManagement({ groups, peopleCount }: AccountManage
       }
 
       // Sign out and redirect to login
-      await signOut({ redirect: true, callbackUrl: '/login' });
+      await signOut({ redirect: false });
+      if (typeof window !== 'undefined') {
+        window.location.href = `${window.location.origin}/login`;
+      }
     } catch {
       setDeleteError(t('importFailed'));
     } finally {

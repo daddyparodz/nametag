@@ -6,10 +6,12 @@ import Navigation from '@/components/Navigation';
 import EmptyState from '@/components/EmptyState';
 import DeleteRelationshipTypeButton from '@/components/DeleteRelationshipTypeButton';
 import { getTranslations } from 'next-intl/server';
+import { getRelationshipTypeDisplayLabel } from '@/lib/relationship-type-labels';
 
 export default async function RelationshipTypesPage() {
   const session = await auth();
   const t = await getTranslations('relationshipTypes');
+  const tRelationshipTypeDefaults = await getTranslations('relationshipTypes.defaults');
 
   if (!session?.user) {
     redirect('/login');
@@ -41,6 +43,10 @@ export default async function RelationshipTypesPage() {
   const relationshipTypesWithUsage = relationshipTypes.map((type) => ({
     ...type,
     totalUsageCount: type._count.relationships + type._count.peopleWithRelation,
+    displayLabel: getRelationshipTypeDisplayLabel(type, tRelationshipTypeDefaults),
+    inverseDisplayLabel: type.inverse
+      ? getRelationshipTypeDisplayLabel(type.inverse, tRelationshipTypeDefaults)
+      : null,
   }));
 
   return (
@@ -96,7 +102,7 @@ export default async function RelationshipTypesPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-foreground">
-                          {type.label}
+                          {type.displayLabel}
                         </div>
                         <div className="text-xs text-muted">
                           {t('usedTimes', { count: type.totalUsageCount })}
@@ -105,7 +111,7 @@ export default async function RelationshipTypesPage() {
                       <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap">
                         {type.inverse ? (
                           <span className="text-sm text-foreground">
-                            {type.inverse.label}
+                            {type.inverseDisplayLabel}
                           </span>
                         ) : (
                           <span className="text-sm text-muted">
@@ -126,7 +132,7 @@ export default async function RelationshipTypesPage() {
                           </Link>
                           <DeleteRelationshipTypeButton
                             relationshipTypeId={type.id}
-                            relationshipTypeName={type.label}
+                            relationshipTypeName={type.displayLabel}
                             usageCount={type.totalUsageCount}
                           />
                         </div>

@@ -11,6 +11,7 @@ import { formatDate } from '@/lib/date-format';
 import { formatFullName } from '@/lib/nameUtils';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { getTranslations } from 'next-intl/server';
+import { getRelationshipTypeDisplayLabel } from '@/lib/relationship-type-labels';
 
 // Type for translation function
 type TranslationFn = (key: string, values?: Record<string, string | number | Date>) => string;
@@ -95,6 +96,7 @@ export default async function PersonDetailsPage({
 }) {
   const session = await auth();
   const t = await getTranslations('people');
+  const tRelationshipTypeDefaults = await getTranslations('relationshipTypes.defaults');
 
   if (!session?.user) {
     redirect('/login');
@@ -384,7 +386,7 @@ export default async function PersonDetailsPage({
                             color: person.relationshipToUser.color || '#374151',
                           }}
                         >
-                          {person.relationshipToUser.label}
+                          {getRelationshipTypeDisplayLabel(person.relationshipToUser, tRelationshipTypeDefaults)}
                         </span>
                       </div>
                       <div className="flex gap-3">

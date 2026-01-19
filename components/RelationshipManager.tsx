@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import PersonAutocomplete from './PersonAutocomplete';
 import { formatFullName } from '@/lib/nameUtils';
 import { Button } from './ui/Button';
+import { getRelationshipTypeDisplayLabel } from '@/lib/relationship-type-labels';
 
 interface Person {
   id: string;
@@ -59,6 +60,7 @@ export default function RelationshipManager({
 }: RelationshipManagerProps) {
   const t = useTranslations('people');
   const tCommon = useTranslations('common');
+  const tRelationshipTypeDefaults = useTranslations('relationshipTypes.defaults');
   const router = useRouter();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -81,6 +83,11 @@ export default function RelationshipManager({
     relationshipTypeId: defaultTypeId,
     notes: '',
   });
+
+  const relationshipTypeOptions = relationshipTypes.map((type) => ({
+    ...type,
+    displayLabel: getRelationshipTypeDisplayLabel(type, tRelationshipTypeDefaults),
+  }));
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -290,7 +297,9 @@ export default function RelationshipManager({
                       color: rel.relationshipType?.color || '#374151',
                     }}
                   >
-                    {rel.relationshipType?.label || 'Unknown'}
+                    {rel.relationshipType
+                      ? getRelationshipTypeDisplayLabel(rel.relationshipType, tRelationshipTypeDefaults)
+                      : 'Unknown'}
                   </span>
                 </div>
                 {rel.notes && (
@@ -349,9 +358,9 @@ export default function RelationshipManager({
                   }
                   className="w-full px-3 py-2 border border-border rounded-lg bg-surface text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  {relationshipTypes.map((type) => (
+                  {relationshipTypeOptions.map((type) => (
                     <option key={type.id} value={type.id}>
-                      {type.label}
+                      {type.displayLabel}
                     </option>
                   ))}
                 </select>
@@ -431,9 +440,9 @@ export default function RelationshipManager({
                   }
                   className="w-full px-3 py-2 border border-border rounded-lg bg-surface text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  {relationshipTypes.map((type) => (
+                  {relationshipTypeOptions.map((type) => (
                     <option key={type.id} value={type.id}>
-                      {type.label}
+                      {type.displayLabel}
                     </option>
                   ))}
                 </select>

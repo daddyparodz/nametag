@@ -6,6 +6,7 @@ declare module 'next-auth' {
       id: string;
       surname: string | null;
       nickname: string | null;
+      language: string | null;
     } & DefaultSession['user'];
   }
 
@@ -15,6 +16,7 @@ declare module 'next-auth' {
     name: string | null;
     surname: string | null;
     nickname: string | null;
+    language?: string | null;
   }
 }
 
@@ -23,5 +25,6 @@ declare module 'next-auth/jwt' {
     id: string;
     surname: string | null;
     nickname: string | null;
+    language?: string | null;
   }
 }

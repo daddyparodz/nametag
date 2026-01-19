@@ -11,23 +11,63 @@ const prisma = new PrismaClient({ adapter });
 const DEFAULT_RELATIONSHIP_TYPES = [
   { name: 'PARENT', label: 'Parent', color: '#F59E0B', inverseName: 'CHILD' },
   { name: 'CHILD', label: 'Child', color: '#F59E0B', inverseName: 'PARENT' },
+  { name: 'GRANDPARENT', label: 'Grandparent', color: '#F97316', inverseName: 'GRANDCHILD' },
+  { name: 'GRANDCHILD', label: 'Grandchild', color: '#FB923C', inverseName: 'GRANDPARENT' },
+  { name: 'AUNT_UNCLE', label: 'Aunt/Uncle', color: '#A855F7', inverseName: 'NIECE_NEPHEW' },
+  { name: 'NIECE_NEPHEW', label: 'Niece/Nephew', color: '#D946EF', inverseName: 'AUNT_UNCLE' },
+  { name: 'COUSIN', label: 'Cousin', color: '#0EA5E9', inverseName: 'COUSIN' },
+  { name: 'STEP_PARENT', label: 'Step-Parent', color: '#EF4444', inverseName: 'STEP_CHILD' },
+  { name: 'STEP_CHILD', label: 'Step-Child', color: '#F43F5E', inverseName: 'STEP_PARENT' },
+  { name: 'PARENT_IN_LAW', label: 'Parent-in-Law', color: '#22C55E', inverseName: 'CHILD_IN_LAW' },
+  { name: 'CHILD_IN_LAW', label: 'Child-in-Law', color: '#16A34A', inverseName: 'PARENT_IN_LAW' },
+  { name: 'SIBLING_IN_LAW', label: 'Sibling-in-Law', color: '#06B6D4', inverseName: 'SIBLING_IN_LAW' },
   { name: 'SIBLING', label: 'Sibling', color: '#8B5CF6', inverseName: 'SIBLING' },
   { name: 'SPOUSE', label: 'Spouse', color: '#EC4899', inverseName: 'SPOUSE' },
   { name: 'PARTNER', label: 'Partner', color: '#EC4899', inverseName: 'PARTNER' },
   { name: 'FRIEND', label: 'Friend', color: '#3B82F6', inverseName: 'FRIEND' },
   { name: 'COLLEAGUE', label: 'Colleague', color: '#10B981', inverseName: 'COLLEAGUE' },
   { name: 'ACQUAINTANCE', label: 'Acquaintance', color: '#14B8A6', inverseName: 'ACQUAINTANCE' },
-  { name: 'RELATIVE', label: 'Relative', color: '#6366F1', inverseName: 'RELATIVE' },
   { name: 'OTHER', label: 'Other', color: '#6B7280', inverseName: 'OTHER' },
 ];
 
 async function createDefaultRelationshipTypes(userId: string, userEmail: string) {
-  console.log(`  Creating relationship types for user: ${userEmail}`);
+  console.log(`  Ensuring default relationship types for user: ${userEmail}`);
 
-  // Create all relationship types first
-  const createdTypes = new Map<string, string>(); // name -> id
+  const legacyRelativeUsage = await Promise.all([
+    prisma.person.count({
+      where: { userId, relationshipToUser: { name: 'RELATIVE' } },
+    }),
+    prisma.relationship.count({
+      where: { person: { userId }, relationshipType: { name: 'RELATIVE' } },
+    }),
+  ]);
 
+  if (legacyRelativeUsage.some((count) => count > 0)) {
+    console.log('  Skipping legacy RELATIVE type deletion (still in use)');
+  } else {
+    await prisma.relationshipType.deleteMany({
+      where: { userId, name: 'RELATIVE' },
+    });
+  }
+
+  const existingTypes = await prisma.relationshipType.findMany({
+    where: { userId },
+    select: { id: true, name: true, inverseId: true, color: true },
+  });
+
+  const typeMap = new Map<string, { id: string; inverseId: string | null; color: string | null }>();
+  for (const type of existingTypes) {
+    typeMap.set(type.name, { id: type.id, inverseId: type.inverseId, color: type.color });
+  }
+
+  let createdCount = 0;
+
+  // Create missing types
   for (const type of DEFAULT_RELATIONSHIP_TYPES) {
+    if (typeMap.has(type.name)) {
+      continue;
+    }
+
     const created = await prisma.relationshipType.create({
       data: {
         userId,
@@ -36,27 +76,69 @@ async function createDefaultRelationshipTypes(userId: string, userEmail: string)
         color: type.color,
       },
     });
-    createdTypes.set(type.name, created.id);
+    typeMap.set(type.name, { id: created.id, inverseId: null, color: created.color });
+    createdCount++;
   }
 
-  // Set inverse relationships
+  // Set inverse relationships where not set
   for (const type of DEFAULT_RELATIONSHIP_TYPES) {
-    const typeId = createdTypes.get(type.name);
-    const inverseId = createdTypes.get(type.inverseName);
+    const current = typeMap.get(type.name);
+    const inverse = typeMap.get(type.inverseName);
 
-    if (typeId && inverseId) {
-      await prisma.relationshipType.update({
-        where: { id: typeId },
-        data: { inverseId },
-      });
+    if (!current || !inverse || current.inverseId) {
+      continue;
     }
+
+    await prisma.relationshipType.update({
+      where: { id: current.id },
+      data: { inverseId: inverse.id },
+    });
   }
 
-  console.log(`  ✓ Created ${DEFAULT_RELATIONSHIP_TYPES.length} relationship types`);
+  const legacyFamilyColor = '#F59E0B';
+  const familyTypesNeedingColorUpdate = new Set([
+    'GRANDPARENT',
+    'GRANDCHILD',
+    'AUNT_UNCLE',
+    'NIECE_NEPHEW',
+    'COUSIN',
+    'STEP_PARENT',
+    'STEP_CHILD',
+    'PARENT_IN_LAW',
+    'CHILD_IN_LAW',
+    'SIBLING_IN_LAW',
+  ]);
+
+  for (const type of DEFAULT_RELATIONSHIP_TYPES) {
+    const current = typeMap.get(type.name);
+    if (!current || current.color === type.color) {
+      continue;
+    }
+
+    const shouldUpdateColor =
+      !current.color ||
+      (familyTypesNeedingColorUpdate.has(type.name) && current.color === legacyFamilyColor);
+
+    if (!shouldUpdateColor) {
+      continue;
+    }
+
+    await prisma.relationshipType.update({
+      where: { id: current.id },
+      data: { color: type.color },
+    });
+    current.color = type.color;
+  }
+
+  if (createdCount > 0) {
+    console.log(`  Created ${createdCount} relationship type(s)`);
+  } else {
+    console.log('  Default relationship types already present');
+  }
 }
 
 async function main() {
-  console.log('🌱 Starting production seed - relationship types...\n');
+  console.log('Starting production seed - relationship types...\n');
 
   // Find all users
   const users = await prisma.user.findMany({
@@ -70,41 +152,32 @@ async function main() {
   });
 
   if (users.length === 0) {
-    console.log('ℹ️  No users found in database. Relationship types will be created when users register.');
+    console.log('No users found in database. Relationship types will be created when users register.');
     return;
   }
 
   console.log(`Found ${users.length} user(s) in database\n`);
 
   let processedCount = 0;
-  let skippedCount = 0;
 
   // Process each user
   for (const user of users) {
-    if (user.relationshipTypes.length > 0) {
-      console.log(`  Skipping user ${user.email} - already has ${user.relationshipTypes.length} relationship types`);
-      skippedCount++;
-      continue;
-    }
-
     await createDefaultRelationshipTypes(user.id, user.email);
     processedCount++;
   }
 
-  console.log('\n🎉 Production seed completed!');
-  console.log(`   Users processed: ${processedCount}`);
-  console.log(`   Users skipped: ${skippedCount}`);
-
-  if (processedCount > 0) {
-    console.log(`\n✅ Created default relationship types for ${processedCount} user(s)`);
-  }
+  console.log('\nProduction seed completed!');
+  console.log(`Users processed: ${processedCount}`);
+  console.log(`\nEnsured default relationship types for ${processedCount} user(s)`);
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error seeding database:', e);
+  console.error('Error seeding database:', e);
     process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();
   });
+
+

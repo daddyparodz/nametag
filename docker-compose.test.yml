@@ -1,0 +1,9 @@
+services:
+  app:
+    env_file:
+      - .env.docker-test
+  db:
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+  redis:
+    command: redis-server --requirepass ${REDIS_PASSWORD}
