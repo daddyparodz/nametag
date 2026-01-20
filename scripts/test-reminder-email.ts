@@ -12,7 +12,7 @@ import { formatFullName } from '../lib/nameUtils';
 
 async function testReminderEmail() {
   try {
-    console.log('🔍 Finding a user with reminder data...\n');
+    console.log('🔍Finding a user with reminder data...\n');
 
     // Option 1: Test Important Date Reminder
     const importantDate = await prisma.importantDate.findFirst({
@@ -36,7 +36,7 @@ async function testReminderEmail() {
     });
 
     if (importantDate) {
-      console.log('📅 Found Important Date Reminder:');
+      console.log('📅Found Important Date Reminder:');
       console.log(`   Person: ${formatFullName(importantDate.person)}`);
       console.log(`   Event: ${importantDate.title}`);
       console.log(`   User Email: ${importantDate.person.user.email}`);
@@ -71,7 +71,7 @@ async function testReminderEmail() {
         (importantDate.person.user.language as 'en' | 'es-ES') || 'en'
       );
 
-      console.log('📧 Sending test email...');
+      console.log('📧Sending test email...');
       const result = await sendEmail({
         to: importantDate.person.user.email,
         subject: template.subject,
@@ -81,12 +81,12 @@ async function testReminderEmail() {
       });
 
       if (result.success) {
-        console.log('✅ Email sent successfully!');
+        console.log('✅Email sent successfully!');
         console.log(`   Email ID: ${result.id}`);
         console.log(`\n📬 Check your inbox at: ${importantDate.person.user.email}`);
         console.log(`🔗 Unsubscribe link: ${unsubscribeUrl}`);
       } else {
-        console.error('❌ Failed to send email:', result.error);
+        console.error('❌Failed to send email:', result.error);
       }
 
       return;
@@ -110,7 +110,7 @@ async function testReminderEmail() {
     });
 
     if (person) {
-      console.log('👤 Found Contact Reminder:');
+      console.log('👤Found Contact Reminder:');
       console.log(`   Person: ${formatFullName(person)}`);
       console.log(`   User Email: ${person.user.email}`);
       console.log(`   Reminder Enabled: ${person.contactReminderEnabled}\n`);
@@ -149,7 +149,7 @@ async function testReminderEmail() {
         (person.user.language as 'en' | 'es-ES') || 'en'
       );
 
-      console.log('📧 Sending test email...');
+      console.log('📧Sending test email...');
       const result = await sendEmail({
         to: person.user.email,
         subject: template.subject,
@@ -159,24 +159,24 @@ async function testReminderEmail() {
       });
 
       if (result.success) {
-        console.log('✅ Email sent successfully!');
+        console.log('✅Email sent successfully!');
         console.log(`   Email ID: ${result.id}`);
         console.log(`\n📬 Check your inbox at: ${person.user.email}`);
         console.log(`🔗 Unsubscribe link: ${unsubscribeUrl}`);
       } else {
-        console.error('❌ Failed to send email:', result.error);
+        console.error('❌Failed to send email:', result.error);
       }
 
       return;
     }
 
-    console.log('❌ No reminders found in the database.');
+    console.log('❌No reminders found in the database.');
     console.log('\n💡 To test, you need to:');
-    console.log('   1. Create a person in the app');
-    console.log('   2. Add an important date with reminder enabled, OR');
-    console.log('   3. Enable contact reminders for a person\n');
+    console.log('1. Create a person in the app');
+    console.log('2. Add an important date with reminder enabled, OR');
+    console.log('3. Enable contact reminders for a person\n');
   } catch (error) {
-    console.error('❌ Error:', error);
+    console.error('❌Error:', error);
     throw error;
   } finally {
     await prisma.$disconnect();

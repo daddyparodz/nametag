@@ -9,7 +9,7 @@ import { prisma } from '../lib/prisma';
 
 async function resetReminders() {
   try {
-    console.log('🔄 Resetting reminder tracking fields...\n');
+    console.log('🔄Resetting reminder tracking fields...\n');
 
     // Reset important date reminders
     const importantDatesResult = await prisma.importantDate.updateMany({
@@ -41,7 +41,7 @@ async function resetReminders() {
     console.log('\n🎉 All reminder tracking fields have been reset!');
     console.log('You can now manually trigger the cron job to send reminders again.\n');
   } catch (error) {
-    console.error('❌ Error resetting reminders:', error);
+    console.error('❌Error resetting reminders:', error);
     throw error;
   } finally {
     await prisma.$disconnect();

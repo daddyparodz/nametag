@@ -4,25 +4,25 @@
 
 set -e
 
-echo "🔧 Redis Environment Setup"
+echo "🔧Redis Environment Setup"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
 # Check if .env exists
 if [ ! -f .env ]; then
-    echo "❌ Error: .env file not found"
-    echo "   Please create .env file first (copy from .env.example)"
+    echo "❌Error: .env file not found"
+    echo "Please create .env file first (copy from .env.example)"
     exit 1
 fi
 
 # Check if Redis config already exists
 if grep -q "REDIS_PASSWORD" .env; then
-    echo "⚠️  Redis configuration already exists in .env"
+    echo "⚠️Redis configuration already exists in .env"
     echo ""
-    read -p "   Do you want to regenerate it? (y/N): " -n 1 -r
+    read -p "   Do you want to regenerate it (y/N): " -n 1 -r
     echo ""
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "   Skipping Redis setup"
+        echo "Skipping Redis setup"
         exit 0
     fi
     
@@ -32,7 +32,7 @@ if grep -q "REDIS_PASSWORD" .env; then
     sed -i.bak '/^REDIS_URL=/d' .env
     sed -i.bak '/^REDIS_PORT=/d' .env
     rm .env.bak
-    echo "   ✅ Removed old Redis configuration"
+    echo "✅ Removed old Redis configuration"
 fi
 
 # Generate secure password
@@ -44,33 +44,32 @@ echo "# Redis Configuration" >> .env
 echo "REDIS_PASSWORD=$REDIS_PASSWORD" >> .env
 echo "REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379" >> .env
 
-echo "✅ Redis configuration added to .env"
+echo "✅Redis configuration added to .env"
 echo ""
-echo "📋 Configuration:"
-echo "   REDIS_PASSWORD: ${REDIS_PASSWORD:0:20}... (32 chars)"
-echo "   REDIS_URL: redis://:****@redis:6379"
+echo "📋Configuration:"
+echo "REDIS_PASSWORD: ${REDIS_PASSWORD:0:20}... (32 chars)"
+echo "REDIS_URL: redis://:****@redis:6379"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "🎯 Next Steps:"
+echo "🎯Next Steps:"
 echo ""
 echo "1. Restart your environment:"
 echo ""
-echo "   For local development (services only):"
-echo "   docker-compose -f docker-compose.services.yml restart redis"
+echo "For local development (services only):"
+echo "docker-compose -f docker-compose.services.yml restart redis"
 echo ""
-echo "   For production:"
-echo "   docker-compose down"
-echo "   docker-compose build app"
-echo "   docker-compose up -d"
+echo "For production:"
+echo "docker-compose down"
+echo "docker-compose build app"
+echo "docker-compose up -d"
 echo ""
 echo "2. Test Redis connection:"
-echo "   node scripts/test-redis.js"
+echo "node scripts/test-redis.js"
 echo ""
 echo "3. Check Redis is running:"
-echo "   docker ps | grep redis"
+echo "docker ps | grep redis"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "✨ Redis is ready to use!"
-
+echo "✨Redis is ready to use!"

@@ -23,22 +23,26 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Set dummy environment variables for build (actual values provided at runtime)
-# These are required for lib/env.ts validation during build
-ENV DATABASE_URL="postgresql://dummy:dummy@dummy:5432/dummy"
-ENV NEXTAUTH_URL="http://localhost:3000"
-ENV NEXTAUTH_SECRET="build-time-secret-min-32-chars-xxxxxxxxxxxxxxxxx"
-ENV RESEND_API_KEY="re_build_time_key"
-ENV EMAIL_DOMAIN="build.example.com"
-ENV CRON_SECRET="build-time-cron-secret"
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Generate Prisma Client
-RUN npx prisma generate
+RUN DATABASE_URL="postgresql://dummy:dummy@dummy:5432/dummy" \
+    NEXTAUTH_URL="http://localhost:3000" \
+    NEXTAUTH_SECRET="build-time-secret-min-32-chars-xxxxxxxxxxxxxxxxx" \
+    RESEND_API_KEY="re_build_time_key" \
+    EMAIL_DOMAIN="build.example.com" \
+    CRON_SECRET="build-time-cron-secret" \
+    npx prisma generate
 
 # Build Next.js application
-RUN npm run build
+RUN DATABASE_URL="postgresql://dummy:dummy@dummy:5432/dummy" \
+    NEXTAUTH_URL="http://localhost:3000" \
+    NEXTAUTH_SECRET="build-time-secret-min-32-chars-xxxxxxxxxxxxxxxxx" \
+    RESEND_API_KEY="re_build_time_key" \
+    EMAIL_DOMAIN="build.example.com" \
+    CRON_SECRET="build-time-cron-secret" \
+    npm run build
 
 # Compile production seed to JavaScript using esbuild
 RUN npx esbuild prisma/seed.production.ts --platform=node --format=cjs --outfile=prisma/seed.production.js --bundle --external:@prisma/client --external:pg --minify
@@ -70,7 +74,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 # Install Prisma CLI for migrations (as root before switching users)
 # Note: We only install prisma (not @prisma/client which is already in standalone)
 RUN --mount=type=cache,target=/root/.npm \
-    npm install prisma@7.0.1
+    npm install prisma@6.5.0
 
 # Copy Prisma generated client from builder (already built)
 COPY --from=builder /app/node_modules/.prisma/ ./node_modules/.prisma/

@@ -46,7 +46,7 @@ if ! docker ps | grep -q $DOCKER_DB_CONTAINER; then
     echo -e "${RED}❌ Not running${NC}"
     echo ""
     echo "Please start the database:"
-    echo "  docker-compose up -d db"
+    echo "docker-compose up -d db"
     exit 1
 fi
 echo -e "${GREEN}✅${NC}"
@@ -115,7 +115,7 @@ SELECT
 FROM pg_tables 
 WHERE schemaname = 'public'
 ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
-" 2>/dev/null || echo "  (Table stats unavailable)"
+" 2>/dev/null || echo "(Table stats unavailable)"
 
 echo ""
 echo "Record counts:"
@@ -132,9 +132,8 @@ echo "║                                                                  ║"
 echo "╚══════════════════════════════════════════════════════════════════╝"
 echo ""
 echo -e "${GREEN}Backup saved to:${NC}"
-echo "  $COMPRESSED_FILE"
+echo "$COMPRESSED_FILE"
 echo ""
 echo -e "${BLUE}To restore this backup:${NC}"
-echo "  ./scripts/restore-database.sh $COMPRESSED_FILE"
+echo "./scripts/restore-database.sh $COMPRESSED_FILE"
 echo ""
-

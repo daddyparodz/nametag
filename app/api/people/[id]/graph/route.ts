@@ -19,6 +19,38 @@ interface GraphEdge {
   color: string;
 }
 
+interface GraphGroupRef {
+  group: { name: string; color: string | null };
+}
+
+interface GraphRelationshipType {
+  label: string;
+  name?: string | null;
+  color?: string | null;
+  inverse?: { label: string; name?: string | null; color?: string | null } | null;
+}
+
+interface GraphRelatedPerson {
+  id: string;
+  name: string;
+  surname?: string | null;
+  nickname?: string | null;
+  groups: GraphGroupRef[];
+  relationshipToUser: { label: string; name?: string | null; color: string | null } | null;
+  relationshipsFrom?: GraphSubRelationship[];
+}
+
+interface GraphRelationshipFrom {
+  relatedPersonId: string;
+  relatedPerson: GraphRelatedPerson;
+  relationshipType?: GraphRelationshipType | null;
+}
+
+interface GraphSubRelationship {
+  relatedPersonId: string;
+  relationshipType?: GraphRelationshipType | null;
+}
+
 export const GET = withAuth(async (_request, session, context) => {
   try {
     const { id } = await context!.params;
@@ -126,8 +158,8 @@ export const GET = withAuth(async (_request, session, context) => {
     nodes.push({
       id: person.id,
       label: formatGraphName(person),
-      groups: person.groups.map((pg) => pg.group.name),
-      colors: person.groups.map((pg) => pg.group.color || '#3B82F6'),
+      groups: person.groups.map((pg: { group: { name: string } }) => pg.group.name),
+      colors: person.groups.map((pg: { group: { color: string | null } }) => pg.group.color || '#3B82F6'),
       isCenter: true,
     });
     nodeIds.add(person.id);
@@ -154,13 +186,13 @@ export const GET = withAuth(async (_request, session, context) => {
     }
 
     // Add related people as nodes
-    person.relationshipsFrom.forEach((rel) => {
+    person.relationshipsFrom.forEach((rel: GraphRelationshipFrom) => {
       if (!nodeIds.has(rel.relatedPersonId)) {
         nodes.push({
           id: rel.relatedPersonId,
           label: formatGraphName(rel.relatedPerson),
-          groups: rel.relatedPerson.groups.map((pg) => pg.group.name),
-          colors: rel.relatedPerson.groups.map((pg) => pg.group.color || '#3B82F6'),
+          groups: rel.relatedPerson.groups.map((pg: GraphGroupRef) => pg.group.name),
+          colors: rel.relatedPerson.groups.map((pg: GraphGroupRef) => pg.group.color || '#3B82F6'),
           isCenter: false,
         });
         nodeIds.add(rel.relatedPersonId);
@@ -181,7 +213,7 @@ export const GET = withAuth(async (_request, session, context) => {
     const addedEdges = new Set<string>();
 
     // Add edges from center person to related people
-    person.relationshipsFrom.forEach((rel) => {
+    person.relationshipsFrom.forEach((rel: GraphRelationshipFrom) => {
       if (nodeIds.has(rel.relatedPersonId)) {
         // Use lexicographic ordering to deduplicate bidirectional relationships
         const isSwapped = person.id > rel.relatedPersonId;
@@ -215,8 +247,8 @@ export const GET = withAuth(async (_request, session, context) => {
     });
 
     // Add edges between related people (relationships within the network)
-    person.relationshipsFrom.forEach((rel) => {
-      rel.relatedPerson.relationshipsFrom?.forEach((subRel) => {
+    person.relationshipsFrom.forEach((rel: GraphRelationshipFrom) => {
+      rel.relatedPerson.relationshipsFrom?.forEach((subRel: GraphSubRelationship) => {
         // Only add edges where both nodes exist in our network
         if (nodeIds.has(subRel.relatedPersonId)) {
           // Use lexicographic ordering to deduplicate bidirectional relationships

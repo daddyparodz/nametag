@@ -122,7 +122,7 @@ export const DELETE = withAuth(async (request, session, context) => {
 
     // If deletePeople is true, delete all people in the group
     if (deletePeople && existingGroup.people.length > 0) {
-      const personIds = existingGroup.people.map((p) => p.personId);
+      const personIds = existingGroup.people.map((p: { personId: string }) => p.personId);
 
       // Soft delete all people in the group
       await prisma.person.updateMany({

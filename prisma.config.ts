@@ -7,7 +7,16 @@ await (async () => {
   }
 })();
 
-import { defineConfig, env } from 'prisma/config';
+import { defineConfig } from 'prisma/config';
+
+const databaseUrl = process.env.DATABASE_URL
+  ?? (process.env.DB_HOST && process.env.DB_PORT && process.env.DB_NAME && process.env.DB_USER
+    ? `postgresql://${process.env.DB_USER}${process.env.DB_PASSWORD ? `:${process.env.DB_PASSWORD}` : ''}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
+    : undefined);
+
+if (!databaseUrl) {
+  throw new Error('DATABASE_URL (or DB_HOST/DB_PORT/DB_NAME/DB_USER) is required for Prisma.');
+}
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',
@@ -16,6 +25,6 @@ export default defineConfig({
     seed: 'tsx prisma/seed.ts',
   },
   datasource: {
-    url: env('DATABASE_URL'),
+    url: databaseUrl,
   },
 });

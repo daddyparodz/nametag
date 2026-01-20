@@ -102,7 +102,7 @@ function shouldSendRecurringReminder(
 }
 
 // Test cases
-console.log('🧪 Testing RECURRING reminder logic\n');
+console.log('🧪Testing RECURRING reminder logic\n');
 
 // Test 1: Every 1 day, event was 2 days ago, never sent
 const test1EventDate = new Date('2026-01-10');
@@ -158,4 +158,4 @@ console.log(`  Today: ${test5Today.toDateString()}`);
 console.log(`  Result: ${test5Result ? '✅ SEND' : '❌ DON\'T SEND'}`);
 console.log(`  Expected: ✅ SEND (today matches anniversary)\n`);
 
-console.log('✨ Testing complete!');
+console.log('✨Testing complete!');

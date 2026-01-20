@@ -14,13 +14,13 @@ require('dotenv').config();
 const Redis = require('ioredis');
 
 async function testRedis() {
-  console.log('🔍 Testing Redis Connection...\n');
+  console.log('🔍Testing Redis Connection...\n');
 
   const redisUrl = process.env.REDIS_URL;
   const redisPassword = process.env.REDIS_PASSWORD;
 
   if (!redisUrl) {
-    console.error('❌ REDIS_URL not found in environment variables');
+    console.error('❌REDIS_URL not found in environment variables');
     process.exit(1);
   }
 
@@ -38,7 +38,7 @@ async function testRedis() {
     // Test 1: Connection
     console.log('Test 1: Connection');
     await redis.ping();
-    console.log('✅ Connected successfully\n');
+    console.log('✅Connected successfully\n');
 
     // Test 2: Set/Get
     console.log('Test 2: Set/Get operations');
@@ -91,16 +91,16 @@ async function testRedis() {
 
     // Cleanup
     await redis.del('test:key', 'test:expiring', key, rateLimitKey);
-    console.log('🧹 Cleaned up test keys\n');
+    console.log('🧹Cleaned up test keys\n');
 
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('✅ All Redis tests passed!');
+    console.log('✅All Redis tests passed!');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
     await redis.quit();
     process.exit(0);
   } catch (error) {
-    console.error('❌ Redis test failed:', error.message);
+    console.error('❌Redis test failed:', error.message);
     console.error('\nTroubleshooting:');
     console.error('1. Check REDIS_URL is correct');
     console.error('2. Check REDIS_PASSWORD matches');
@@ -113,4 +113,3 @@ async function testRedis() {
 }
 
 testRedis();
-

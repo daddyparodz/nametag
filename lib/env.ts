@@ -83,7 +83,7 @@ function validateEnv(): Env {
       (issue) => `  - ${issue.path.join('.')}: ${issue.message}`
     );
 
-    console.error('\n❌ Invalid environment variables:\n');
+    console.error('\n❌Invalid environment variables:\n');
     console.error(errors.join('\n'));
     console.error('\nPlease check your .env file.\n');
 
@@ -100,11 +100,11 @@ function validateEnv(): Env {
       .map(([key]) => key);
 
     if (missingVars.length > 0) {
-      console.error('\n❌ Invalid environment variables:\n');
-      console.error('  - Database configuration is incomplete.');
+      console.error('\n❌Invalid environment variables:\n');
+      console.error('- Database configuration is incomplete.');
       console.error('\n  You must provide either:');
-      console.error('    1. DATABASE_URL (connection string), OR');
-      console.error('    2. All of: DB_HOST, DB_PORT, DB_NAME, DB_USER (and optionally DB_PASSWORD)');
+      console.error('1. DATABASE_URL (connection string), OR');
+      console.error('2. All of: DB_HOST, DB_PORT, DB_NAME, DB_USER (and optionally DB_PASSWORD)');
       console.error(`\n  Missing: ${missingVars.join(', ')}`);
       console.error('\nPlease check your .env file.\n');
       throw new Error('Invalid environment configuration');
@@ -131,7 +131,7 @@ function validateEnv(): Env {
     if (!result.data.GOOGLE_CLIENT_SECRET) missing.push('GOOGLE_CLIENT_SECRET');
 
     if (missing.length > 0) {
-      console.error('\n❌ Invalid environment variables:\n');
+      console.error('\n❌Invalid environment variables:\n');
       console.error(`  - The following are required when SAAS_MODE is enabled: ${missing.join(', ')}`);
       console.error('\nPlease check your .env file.\n');
       throw new Error('Invalid environment configuration');
@@ -148,8 +148,8 @@ function validateEnv(): Env {
   const hasAnySmtpConfig = smtpVars.some(v => v !== undefined);
 
   if (hasAnySmtpConfig && (!result.data.SMTP_HOST || !result.data.SMTP_PORT)) {
-    console.error('\n❌ Invalid environment variables:\n');
-    console.error('  - If any SMTP_* variable is set, both SMTP_HOST and SMTP_PORT are required');
+    console.error('\n❌Invalid environment variables:\n');
+    console.error('- If any SMTP_* variable is set, both SMTP_HOST and SMTP_PORT are required');
     console.error('\nPlease check your .env file.\n');
     throw new Error('Invalid environment configuration');
   }
@@ -160,8 +160,8 @@ function validateEnv(): Env {
     (result.data.SMTP_HOST && result.data.SMTP_PORT);
 
   if (hasEmailProvider && !result.data.EMAIL_DOMAIN) {
-    console.error('\n❌ Invalid environment variables:\n');
-    console.error('  - EMAIL_DOMAIN is required when email is configured (Resend or SMTP)');
+    console.error('\n❌Invalid environment variables:\n');
+    console.error('- EMAIL_DOMAIN is required when email is configured (Resend or SMTP)');
     console.error('\nPlease check your .env file.\n');
     throw new Error('Invalid environment configuration');
   }

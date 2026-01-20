@@ -43,7 +43,7 @@ export const GET = withAuth(async (_request, session, context) => {
 
     // Get unique person IDs related to this person
     const relatedPersonIds = new Set<string>();
-    relationships.forEach((rel) => {
+    relationships.forEach((rel: { personId: string; relatedPersonId: string | null }) => {
       if (rel.personId === id && rel.relatedPersonId) {
         relatedPersonIds.add(rel.relatedPersonId);
       }
@@ -68,7 +68,8 @@ export const GET = withAuth(async (_request, session, context) => {
 
       // Count relationships excluding the one with the person being deleted
       const otherRelationships = relatedPersonRelationships.filter(
-        (rel) => rel.personId !== id && rel.relatedPersonId !== id
+        (rel: { personId: string; relatedPersonId: string | null }) =>
+          rel.personId !== id && rel.relatedPersonId !== id
       );
 
       // Check if this person has a direct relationship to the user

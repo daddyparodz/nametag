@@ -12,9 +12,9 @@ import { createUnsubscribeToken } from '../lib/unsubscribe-tokens';
 const testEmail = process.argv[2];
 
 if (!testEmail) {
-  console.error('❌ Please provide an email address');
+  console.error('❌Please provide an email address');
   console.log('\nUsage:');
-  console.log('  npx tsx scripts/send-test-reminder.ts your-email@example.com\n');
+  console.log('npx tsx scripts/send-test-reminder.ts your-email@example.com\n');
   process.exit(1);
 }
 
@@ -28,7 +28,7 @@ async function sendTestReminder() {
     });
 
     if (!user) {
-      console.log('👤 Creating test user...');
+      console.log('👤Creating test user...');
       user = await prisma.user.create({
         data: {
           email: testEmail,
@@ -40,7 +40,7 @@ async function sendTestReminder() {
     }
 
     // Create a test person with important date
-    console.log('📅 Creating test person and important date...');
+    console.log('📅Creating test person and important date...');
     const person = await prisma.person.create({
       data: {
         userId: user.id,
@@ -63,7 +63,7 @@ async function sendTestReminder() {
     const importantDate = person.importantDates[0];
 
     // Generate unsubscribe token
-    console.log('🔐 Generating unsubscribe token...');
+    console.log('🔐Generating unsubscribe token...');
     const unsubscribeToken = await createUnsubscribeToken({
       userId: user.id,
       reminderType: 'IMPORTANT_DATE',
@@ -71,7 +71,7 @@ async function sendTestReminder() {
     });
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const unsubscribeUrl = `${baseUrl}/unsubscribe?token=${unsubscribeToken}`;
+    const unsubscribeUrl = `${baseUrl}/unsubscribetoken=${unsubscribeToken}`;
 
     console.log(`🔗 Unsubscribe URL: ${unsubscribeUrl}\n`);
 
@@ -84,7 +84,7 @@ async function sendTestReminder() {
       'en'
     );
 
-    console.log('📬 Sending email...');
+    console.log('📬Sending email...');
     const result = await sendEmail({
       to: testEmail,
       subject: template.subject,
@@ -94,22 +94,22 @@ async function sendTestReminder() {
     });
 
     if (result.success) {
-      console.log('✅ Email sent successfully!');
+      console.log('✅Email sent successfully!');
       console.log(`   Email ID: ${result.id}`);
       console.log(`\n📬 Check your inbox at: ${testEmail}`);
       console.log(`🔗 Click this to test unsubscribe: ${unsubscribeUrl}`);
       console.log('\n💡 The unsubscribe link should also be at the bottom of the email.');
     } else {
-      console.error('❌ Failed to send email:', result.error);
+      console.error('❌Failed to send email:', result.error);
     }
 
     // Clean up test data
     console.log('\n🧹 Cleaning up test data...');
     await prisma.person.delete({ where: { id: person.id } });
     await prisma.user.delete({ where: { id: user.id } });
-    console.log('✅ Cleanup complete\n');
+    console.log('✅Cleanup complete\n');
   } catch (error) {
-    console.error('❌ Error:', error);
+    console.error('❌Error:', error);
     throw error;
   } finally {
     await prisma.$disconnect();

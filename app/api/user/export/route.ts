@@ -1,6 +1,60 @@
 import { prisma } from '@/lib/prisma';
 import { apiResponse, handleApiError, withAuth } from '@/lib/api-utils';
 
+interface ExportGroupLink {
+  group: { id: string; name: string };
+}
+
+interface ExportRelationshipToUser {
+  name?: string | null;
+  label: string;
+}
+
+interface ExportRelationshipType {
+  name?: string | null;
+  label: string;
+}
+
+interface ExportRelatedPerson {
+  name: string;
+  nickname?: string | null;
+  surname?: string | null;
+}
+
+interface ExportRelationship {
+  relatedPersonId: string;
+  relatedPerson: ExportRelatedPerson;
+  relationshipType: ExportRelationshipType | null;
+  notes?: string | null;
+}
+
+interface ExportPerson {
+  id: string;
+  name: string;
+  surname?: string | null;
+  nickname?: string | null;
+  lastContact?: Date | null;
+  notes?: string | null;
+  relationshipToUser: ExportRelationshipToUser | null;
+  groups: ExportGroupLink[];
+  relationshipsFrom: ExportRelationship[];
+}
+
+interface ExportGroup {
+  id: string;
+  name: string;
+  description?: string | null;
+  color?: string | null;
+}
+
+interface ExportRelationshipTypeRecord {
+  id: string;
+  name?: string | null;
+  label: string;
+  color?: string | null;
+  inverseId?: string | null;
+}
+
 export const GET = withAuth(async (request, session) => {
   try {
     // Parse query params for group filtering
@@ -81,25 +135,29 @@ export const GET = withAuth(async (request, session) => {
     ]);
 
     // Get set of exported person IDs for filtering relationships
-    const exportedPersonIds = new Set(allPeople.map((p) => p.id));
+    const exportedPersonIds = new Set(allPeople.map((p: ExportPerson) => p.id));
 
     // When filtering by groups, only include those specific groups (not all groups the people belong to)
     const exportedGroupIds = filterByGroups && filterByGroups.length > 0
       ? new Set(filterByGroups)
-      : new Set(allPeople.flatMap((p) => p.groups.map((g) => g.group.id)));
+      : new Set(
+          allPeople.flatMap((p: ExportPerson) =>
+            p.groups.map((g: ExportGroupLink) => g.group.id)
+          )
+        );
 
     // Filter relationships to only include those between exported people
     // Also filter person's groups to only include the exported groups
-    const people = allPeople.map((person) => ({
+    const people = allPeople.map((person: ExportPerson) => ({
       ...person,
-      groups: person.groups.filter((g) => exportedGroupIds.has(g.group.id)),
-      relationshipsFrom: person.relationshipsFrom.filter((rel) =>
+      groups: person.groups.filter((g: ExportGroupLink) => exportedGroupIds.has(g.group.id)),
+      relationshipsFrom: person.relationshipsFrom.filter((rel: ExportRelationship) =>
         exportedPersonIds.has(rel.relatedPersonId)
       ),
     }));
 
     // Filter groups to only include the exported groups
-    const groups = allGroups.filter((g) => exportedGroupIds.has(g.id));
+    const groups = allGroups.filter((g: ExportGroup) => exportedGroupIds.has(g.id));
 
     // Build export data structure
     const exportData = {
@@ -112,13 +170,13 @@ export const GET = withAuth(async (request, session) => {
         dateFormat: user?.dateFormat,
         accountCreated: user?.createdAt,
       },
-      groups: groups.map((group) => ({
+      groups: groups.map((group: ExportGroup) => ({
         id: group.id,
         name: group.name,
         description: group.description,
         color: group.color,
       })),
-      people: people.map((person) => ({
+      people: people.map((person: ExportPerson) => ({
         id: person.id,
         name: person.name,
         surname: person.surname,
@@ -131,8 +189,8 @@ export const GET = withAuth(async (request, session) => {
               label: person.relationshipToUser.label,
             }
           : null,
-        groups: person.groups.map((pg) => pg.group.name),
-        relationships: person.relationshipsFrom.map((rel) => ({
+        groups: person.groups.map((pg: ExportGroupLink) => pg.group.name),
+        relationships: person.relationshipsFrom.map((rel: ExportRelationship) => ({
           relatedPersonId: rel.relatedPersonId,
           relatedPersonName: `${rel.relatedPerson.name}${rel.relatedPerson.nickname ? ` '${rel.relatedPerson.nickname}'` : ''}${rel.relatedPerson.surname ? ` ${rel.relatedPerson.surname}` : ''}`,
           relationshipType: rel.relationshipType
@@ -144,7 +202,7 @@ export const GET = withAuth(async (request, session) => {
           notes: rel.notes,
         })),
       })),
-      relationshipTypes: relationshipTypes.map((type) => ({
+      relationshipTypes: relationshipTypes.map((type: ExportRelationshipTypeRecord) => ({
         id: type.id,
         name: type.name,
         label: type.label,

@@ -9,7 +9,7 @@ async function main() {
   // Dynamically import prisma after env is loaded
   const { withDeleted } = await import('../lib/prisma');
   const prisma = withDeleted();
-  console.log('🌱 Starting database seed...');
+  console.log('🌱Starting database seed...');
 
   // Clear existing data
   await prisma.relationship.deleteMany();
@@ -30,7 +30,7 @@ async function main() {
     },
   });
 
-  console.log('✓ Created demo user: demo@nametag.one');
+  console.log('✓Created demo user: demo@nametag.one');
 
   // Create relationship types for the demo user
   const parentType = await prisma.relationshipType.create({
@@ -285,7 +285,7 @@ async function main() {
     data: { inverseId: friendType.id },
   });
 
-  console.log('✓ Created 20 relationship types for demo user');
+  console.log('✓Created 20 relationship types for demo user');
 
   // Create groups
   const familyGroup = await prisma.group.create({
@@ -315,7 +315,7 @@ async function main() {
     },
   });
 
-  console.log('✓ Created 3 groups');
+  console.log('✓Created 3 groups');
 
   // Create people
   const john = await prisma.person.create({
@@ -435,7 +435,7 @@ async function main() {
     },
   });
 
-  console.log('✓ Created 7 people');
+  console.log('✓Created 7 people');
 
   // Create relationships
   await prisma.relationship.createMany({
@@ -538,9 +538,9 @@ async function main() {
     ],
   });
 
-  console.log('✓ Created relationships');
+  console.log('✓Created relationships');
 
-  console.log('\n🎉 Seed completed successfully!');
+  console.log('\n🎉Seed completed successfully!');
   console.log('\nDemo credentials:');
   console.log('Email: demo@nametag.one');
   console.log('Password: password123');

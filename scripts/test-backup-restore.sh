@@ -54,7 +54,7 @@ else
     echo -e "${RED}❌ Not running${NC}"
     echo ""
     echo -e "${YELLOW}Please start the database:${NC}"
-    echo "  docker-compose up -d db"
+    echo "docker-compose up -d db"
     exit 1
 fi
 
@@ -85,8 +85,8 @@ docker exec $DOCKER_DB_CONTAINER pg_dump -U $DB_USER -d $DB_NAME > "$TEST_BACKUP
 if [ -f "$TEST_BACKUP_FILE" ]; then
     BACKUP_SIZE=$(ls -lh "$TEST_BACKUP_FILE" | awk '{print $5}')
     echo -e "${GREEN}✅ Backup created successfully${NC}"
-    echo "   Size: $BACKUP_SIZE"
-    echo "   Location: $TEST_BACKUP_FILE"
+    echo "Size: $BACKUP_SIZE"
+    echo "Location: $TEST_BACKUP_FILE"
 else
     echo -e "${RED}❌ Backup creation failed${NC}"
     exit 1
@@ -124,8 +124,8 @@ VALUES (
 # Count users again
 NEW_USER_COUNT=$(docker exec $DOCKER_DB_CONTAINER psql -U $DB_USER -d $DB_NAME -t -c "SELECT COUNT(*) FROM \"User\";" | tr -d ' ')
 echo -e "${GREEN}✅ Test data inserted${NC}"
-echo "   Users before: $USER_COUNT"
-echo "   Users after: $NEW_USER_COUNT"
+echo "Users before: $USER_COUNT"
+echo "Users after: $NEW_USER_COUNT"
 
 if [ "$NEW_USER_COUNT" -le "$USER_COUNT" ]; then
     echo -e "${RED}❌ Test data insertion might have failed${NC}"
@@ -141,7 +141,7 @@ echo ""
 echo -e "${YELLOW}⚠️  This will restore the database to the backup state${NC}"
 echo -e "${YELLOW}   The test user we just added will be removed${NC}"
 echo ""
-read -p "Continue with restore? (y/N): " -n 1 -r
+read -p "Continue with restore (y/N): " -n 1 -r
 echo ""
 
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -167,8 +167,8 @@ cat "$TEST_BACKUP_FILE" | docker exec -i $DOCKER_DB_CONTAINER psql -U $DB_USER -
 RESTORED_COUNT=$(docker exec $DOCKER_DB_CONTAINER psql -U $DB_USER -d ${DB_NAME}_restore_test -t -c "SELECT COUNT(*) FROM \"User\";" | tr -d ' ')
 
 echo -e "${GREEN}✅ Database restored successfully${NC}"
-echo "   Original user count: $USER_COUNT"
-echo "   Restored user count: $RESTORED_COUNT"
+echo "Original user count: $USER_COUNT"
+echo "Restored user count: $RESTORED_COUNT"
 
 # Verify counts match
 if [ "$RESTORED_COUNT" -eq "$USER_COUNT" ]; then
@@ -211,13 +211,12 @@ echo ""
 echo -e "${GREEN}✅ All tests passed successfully!${NC}"
 echo ""
 echo "Summary:"
-echo "  • Backup creation: ✅"
-echo "  • Backup validation: ✅"
-echo "  • Data insertion: ✅"
-echo "  • Database restore: ✅"
-echo "  • Data integrity: ✅"
-echo "  • Cleanup: ✅"
+echo "• Backup creation: ✅"
+echo "• Backup validation: ✅"
+echo "• Data insertion: ✅"
+echo "• Database restore: ✅"
+echo "• Data integrity: ✅"
+echo "• Cleanup: ✅"
 echo ""
 echo -e "${GREEN}Your backup and restore procedures are working correctly!${NC}"
 echo ""
-

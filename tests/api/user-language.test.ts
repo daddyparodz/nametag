@@ -16,6 +16,7 @@ vi.mock('@/lib/prisma', () => ({
 vi.mock('@/lib/locale', () => ({
   isSupportedLocale: (locale: string) => ['en', 'es-ES'].includes(locale),
   setLocaleCookie: vi.fn(),
+  SUPPORTED_LOCALES: ['en', 'es-ES', 'it-IT'],
 }));
 
 describe('Language API Endpoint', () => {

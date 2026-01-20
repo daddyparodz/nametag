@@ -5,6 +5,8 @@ import Navigation from '@/components/Navigation';
 import SettingsNav from '@/components/SettingsNav';
 import { getTranslations } from 'next-intl/server';
 
+export const dynamic = 'force-dynamic';
+
 export default async function SettingsLayout({
   children,
 }: {
