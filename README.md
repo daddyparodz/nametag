@@ -193,6 +193,7 @@ The database will be automatically set up on first run.
 | `DB_NAME`         | PostgreSQL database name                                          | `nametag_db`                            |
 | `DB_USER`         | PostgreSQL username                                               | `nametag`                               |
 | `DB_PASSWORD`     | PostgreSQL password                                               | `your-secure-password`                  |
+| `DATABASE_URL`    | Connection string (required for Prisma tooling; overrides DB_*)    | `postgresql://user:pass@host:5432/db`   |
 | `NEXTAUTH_URL`    | Application URL (for auth, emails, redirects)                     | `https://yourdomain.com`                |
 | `NEXTAUTH_SECRET` | Secret for JWT encryption (min 32 chars)                          | Generate with `openssl rand -base64 32` |
 | `CRON_SECRET`     | Secret for cron job authentication                                | Generate with `openssl rand -base64 16` |
@@ -403,6 +404,19 @@ Faster iteration and better debugging experience.
 5. Set up database: `./scripts/setup-db.sh`
 6. Start dev server: `npm run dev`
 7. Open `http://localhost:3000`
+
+### Build & Prisma Notes
+
+- `DATABASE_URL` is required for Prisma generate/build (see `.env.example` for the default local value).
+- `npm run build` runs `prisma generate` first, so it needs the same env setup as development.
+- The Docker build passes temporary env values at build time; runtime secrets still come from your `.env`.
+- Tooling versions are pinned to remain compatible with Node 20.11 in local dev.
+
+### Tests
+
+- `npm test` runs the Vitest suite.
+- `tests/integration/database-backup.test.ts` is skipped unless backup tooling and DB are available.
+- Redis integration tests skip when `REDIS_URL` is not set.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed setup instructions, code guidelines, and how to submit pull requests.
 
